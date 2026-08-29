@@ -1,0 +1,196 @@
+﻿# ============================================================
+# Happy Headlines - .gitignore
+# Rider / JetBrains + .NET
+# ============================================================
+
+
+# ----------------------------
+# JetBrains Rider / IntelliJ
+# ----------------------------
+.idea/
+*.sln.iml
+*.iws
+*.ipr
+*.iml
+
+
+# ----------------------------
+# .NET build output
+# ----------------------------
+[Bb]in/
+[Oo]bj/
+[Dd]ebug/
+[Rr]elease/
+x64/
+x86/
+[Aa][Rr][Mm]/
+[Aa][Rr][Mm]64/
+
+
+# ----------------------------
+# Visual Studio
+# ----------------------------
+.vs/
+*.user
+*.rsuser
+*.suo
+*.userosscache
+*.sln.docstates
+
+
+# ----------------------------
+# Test results
+# ----------------------------
+TestResults/
+[Tt]est[Rr]esult*/
+*.trx
+
+
+# ----------------------------
+# Code coverage
+# ----------------------------
+coverage/
+coverage.*
+*.coverage
+*.coveragexml
+*.opencover.xml
+*.cobertura.xml
+
+
+# ----------------------------
+# NuGet
+# ----------------------------
+*.nupkg
+*.snupkg
+.nuget/
+packages/
+
+# Keep package lock files if they are created
+!packages.lock.json
+
+
+# ----------------------------
+# ASP.NET / local configuration
+# ----------------------------
+appsettings.Development.json
+appsettings.Local.json
+appsettings.*.Local.json
+
+
+# ----------------------------
+# Environment variables / secrets
+# ----------------------------
+.env
+.env.*
+!.env.example
+
+secrets.json
+*.secrets.json
+
+# Certificates and private keys
+*.pfx
+*.p12
+*.key
+*.pem
+
+
+# ----------------------------
+# Logs
+# ----------------------------
+*.log
+logs/
+Logs/
+
+
+# ----------------------------
+# Temporary files
+# ----------------------------
+*.tmp
+*.temp
+*.bak
+*.swp
+*.swo
+*~
+~$*
+
+
+# ----------------------------
+# Generated files / caches
+# ----------------------------
+artifacts/
+.cache/
+.temp/
+tmp/
+
+
+# ----------------------------
+# Publish output
+# ----------------------------
+publish/
+PublishProfiles/
+
+# Do not commit local publish credentials
+*.pubxml.user
+
+
+# ----------------------------
+# Database local files
+# ----------------------------
+*.db-shm
+*.db-wal
+*.sqlite-shm
+*.sqlite-wal
+
+
+# ----------------------------
+# Docker local overrides
+# ----------------------------
+docker-compose.override.local.yml
+compose.override.local.yml
+
+
+# ----------------------------
+# Node.js
+# Useful if a frontend is added later
+# ----------------------------
+node_modules/
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+pnpm-debug.log*
+
+dist/
+.angular/
+.next/
+
+
+# ----------------------------
+# macOS
+# ----------------------------
+.DS_Store
+.AppleDouble
+.LSOverride
+
+
+# ----------------------------
+# Windows
+# ----------------------------
+Thumbs.db
+Thumbs.db:encryptable
+Desktop.ini
+$RECYCLE.BIN/
+
+
+# ----------------------------
+# Linux
+# ----------------------------
+.directory
+.Trash-*
+
+
+# ----------------------------
+# Misc IDE/editor
+# ----------------------------
+.vscode/*
+!.vscode/extensions.json
+!.vscode/settings.json
