@@ -1,0 +1,19 @@
+@baseUrl = http://localhost:8081
+@articleId = 11111111-1111-1111-1111-111111111111
+
+POST {{baseUrl}}/api/comments
+Content-Type: application/json
+
+{
+  "articleId": "{{articleId}}",
+  "author": "Ahmad",
+  "content": "This is a great article."
+}
+
+###
+
+GET {{baseUrl}}/api/comments/article/{{articleId}}
+
+###
+
+GET {{baseUrl}}/health
