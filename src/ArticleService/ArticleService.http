@@ -1,0 +1,18 @@
+@baseUrl = http://localhost:8080
+
+### Health check
+GET {{baseUrl}}/health
+
+### Create an article
+POST {{baseUrl}}/api/articles
+Content-Type: application/json
+
+{
+  "title": "New wind farm opens in Denmark",
+  "content": "Example article content.",
+  "source": "Happy Headlines",
+  "scope": "europe"
+}
+
+### List articles from one database shard
+GET {{baseUrl}}/api/articles/europe?limit=20

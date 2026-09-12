@@ -1,0 +1,182 @@
+version: "3.8"
+
+services:
+  load-balancer:
+    image: nginx:1.27-alpine
+    ports:
+      - target: 80
+        published: 8080
+        protocol: tcp
+        mode: ingress
+    configs:
+      - source: nginx_config
+        target: /etc/nginx/nginx.conf
+    networks:
+      - frontend
+    deploy:
+      replicas: 1
+      restart_policy:
+        condition: on-failure
+
+  article-service:
+    image: happyheadlines/article-service:week36
+    environment:
+      ASPNETCORE_URLS: http://+:8080
+      ConnectionStrings__Africa: Host=africa-db;Port=5432;Database=happy_headlines_africa;Username=postgres;Password=happyheadlines_dev
+      ConnectionStrings__Antarctica: Host=antarctica-db;Port=5432;Database=happy_headlines_antarctica;Username=postgres;Password=happyheadlines_dev
+      ConnectionStrings__Asia: Host=asia-db;Port=5432;Database=happy_headlines_asia;Username=postgres;Password=happyheadlines_dev
+      ConnectionStrings__Australia: Host=australia-db;Port=5432;Database=happy_headlines_australia;Username=postgres;Password=happyheadlines_dev
+      ConnectionStrings__Europe: Host=europe-db;Port=5432;Database=happy_headlines_europe;Username=postgres;Password=happyheadlines_dev
+      ConnectionStrings__NorthAmerica: Host=north-america-db;Port=5432;Database=happy_headlines_north_america;Username=postgres;Password=happyheadlines_dev
+      ConnectionStrings__SouthAmerica: Host=south-america-db;Port=5432;Database=happy_headlines_south_america;Username=postgres;Password=happyheadlines_dev
+      ConnectionStrings__Global: Host=global-db;Port=5432;Database=happy_headlines_global;Username=postgres;Password=happyheadlines_dev
+    networks:
+      - frontend
+      - backend
+    deploy:
+      replicas: 3
+      restart_policy:
+        condition: on-failure
+      update_config:
+        parallelism: 1
+        order: start-first
+
+  africa-db:
+    image: postgres:16-alpine
+    environment:
+      POSTGRES_DB: happy_headlines_africa
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: happyheadlines_dev
+    volumes:
+      - africa-data:/var/lib/postgresql/data
+    networks:
+      - backend
+    deploy:
+      replicas: 1
+      restart_policy:
+        condition: on-failure
+
+  antarctica-db:
+    image: postgres:16-alpine
+    environment:
+      POSTGRES_DB: happy_headlines_antarctica
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: happyheadlines_dev
+    volumes:
+      - antarctica-data:/var/lib/postgresql/data
+    networks:
+      - backend
+    deploy:
+      replicas: 1
+      restart_policy:
+        condition: on-failure
+
+  asia-db:
+    image: postgres:16-alpine
+    environment:
+      POSTGRES_DB: happy_headlines_asia
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: happyheadlines_dev
+    volumes:
+      - asia-data:/var/lib/postgresql/data
+    networks:
+      - backend
+    deploy:
+      replicas: 1
+      restart_policy:
+        condition: on-failure
+
+  australia-db:
+    image: postgres:16-alpine
+    environment:
+      POSTGRES_DB: happy_headlines_australia
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: happyheadlines_dev
+    volumes:
+      - australia-data:/var/lib/postgresql/data
+    networks:
+      - backend
+    deploy:
+      replicas: 1
+      restart_policy:
+        condition: on-failure
+
+  europe-db:
+    image: postgres:16-alpine
+    environment:
+      POSTGRES_DB: happy_headlines_europe
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: happyheadlines_dev
+    volumes:
+      - europe-data:/var/lib/postgresql/data
+    networks:
+      - backend
+    deploy:
+      replicas: 1
+      restart_policy:
+        condition: on-failure
+
+  north-america-db:
+    image: postgres:16-alpine
+    environment:
+      POSTGRES_DB: happy_headlines_north_america
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: happyheadlines_dev
+    volumes:
+      - north-america-data:/var/lib/postgresql/data
+    networks:
+      - backend
+    deploy:
+      replicas: 1
+      restart_policy:
+        condition: on-failure
+
+  south-america-db:
+    image: postgres:16-alpine
+    environment:
+      POSTGRES_DB: happy_headlines_south_america
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: happyheadlines_dev
+    volumes:
+      - south-america-data:/var/lib/postgresql/data
+    networks:
+      - backend
+    deploy:
+      replicas: 1
+      restart_policy:
+        condition: on-failure
+
+  global-db:
+    image: postgres:16-alpine
+    environment:
+      POSTGRES_DB: happy_headlines_global
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: happyheadlines_dev
+    volumes:
+      - global-data:/var/lib/postgresql/data
+    networks:
+      - backend
+    deploy:
+      replicas: 1
+      restart_policy:
+        condition: on-failure
+
+networks:
+  frontend:
+    driver: overlay
+  backend:
+    driver: overlay
+
+configs:
+  nginx_config:
+    file: ./infra/nginx/nginx.conf
+
+volumes:
+  africa-data:
+  antarctica-data:
+  asia-data:
+  australia-data:
+  europe-data:
+  north-america-data:
+  south-america-data:
+  global-data:
