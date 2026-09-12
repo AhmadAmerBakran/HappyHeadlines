@@ -41,6 +41,38 @@ services:
         parallelism: 1
         order: start-first
 
+  comment-service:
+    image: happyheadlines/comment-service:week37
+    ports:
+      - target: 8080
+        published: 8081
+        protocol: tcp
+        mode: ingress
+    environment:
+      ASPNETCORE_URLS: http://+:8080
+      ConnectionStrings__Comments: Host=comment-db;Port=5432;Database=happy_headlines_comments;Username=postgres;Password=happyheadlines_dev
+      Services__ProfanityService: http://profanity-service:8080/
+    networks:
+      - comment-data
+      - moderation
+    deploy:
+      replicas: 1
+      restart_policy:
+        condition: on-failure
+
+  profanity-service:
+    image: happyheadlines/profanity-service:week37
+    environment:
+      ASPNETCORE_URLS: http://+:8080
+      ConnectionStrings__Profanity: Host=profanity-db;Port=5432;Database=happy_headlines_profanity;Username=postgres;Password=happyheadlines_dev
+    networks:
+      - profanity-data
+      - moderation
+    deploy:
+      replicas: 1
+      restart_policy:
+        condition: on-failure
+
   africa-db:
     image: postgres:16-alpine
     environment:
@@ -161,10 +193,46 @@ services:
       restart_policy:
         condition: on-failure
 
+  comment-db:
+    image: postgres:16-alpine
+    environment:
+      POSTGRES_DB: happy_headlines_comments
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: happyheadlines_dev
+    volumes:
+      - comment-data-volume:/var/lib/postgresql/data
+    networks:
+      - comment-data
+    deploy:
+      replicas: 1
+      restart_policy:
+        condition: on-failure
+
+  profanity-db:
+    image: postgres:16-alpine
+    environment:
+      POSTGRES_DB: happy_headlines_profanity
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: happyheadlines_dev
+    volumes:
+      - profanity-data-volume:/var/lib/postgresql/data
+    networks:
+      - profanity-data
+    deploy:
+      replicas: 1
+      restart_policy:
+        condition: on-failure
+
 networks:
   frontend:
     driver: overlay
   backend:
+    driver: overlay
+  comment-data:
+    driver: overlay
+  profanity-data:
+    driver: overlay
+  moderation:
     driver: overlay
 
 configs:
@@ -180,3 +248,5 @@ volumes:
   north-america-data:
   south-america-data:
   global-data:
+  comment-data-volume:
+  profanity-data-volume:

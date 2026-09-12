@@ -2,36 +2,23 @@
 
 Semester project for Development of Large Systems (E2026).
 
+## Week 35 - architecture
+
+The first week contains the C4 system context and container diagrams in the `docs` folder. They are kept in the repository because the architecture is extended during the semester.
+
 ## Week 36 - scalability cube
 
-This week adds the ArticleService and the first scalable deployment of the article part of the system.
+Week 36 added the ArticleService and the first scalable deployment of the article part of the system.
 
-The ArticleService is a REST API with CRUD operations. Articles are stored in separate PostgreSQL databases depending on where the article is relevant. The service itself runs with three replicas in Docker Swarm.
+The service is a REST API with CRUD operations. Article data is split by scope across separate PostgreSQL databases, while the service itself runs with three replicas in Docker Swarm.
 
 ### Scaling used
 
-**X-axis**
+**X-axis:** three identical ArticleService replicas.
 
-The ArticleService runs as three identical replicas. Nginx is the public entry point and Docker Swarm distributes requests between the service replicas.
+**Z-axis:** article data is split into Africa, Antarctica, Asia, Australia, Europe, North America, South America and Global databases.
 
-**Z-axis**
-
-Article data is split into eight databases:
-
-- Africa
-- Antarctica
-- Asia
-- Australia
-- Europe
-- North America
-- South America
-- Global
-
-The `scope` on an article decides which database is used. `global` is used for articles that are relevant worldwide. `oceania` is accepted as an alias for `australia`.
-
-### API
-
-The main endpoints are:
+The article endpoints are:
 
 ```text
 POST   /api/articles
@@ -41,26 +28,62 @@ PUT    /api/articles/{scope}/{id}
 DELETE /api/articles/{scope}/{id}
 ```
 
-Example request body:
+## Week 37 - fault isolation
+
+This week adds comments and profanity filtering.
+
+`CommentService` owns the comment data and `ProfanityService` owns the profanity word list. Each service has its own PostgreSQL database and its own data network. The only network shared by the two services is the `moderation` network used for the direct service-to-service call.
+
+```text
+Client -> CommentService -> ProfanityService
+              |                  |
+         CommentDatabase    ProfanityDatabase
+```
+
+CommentService calls ProfanityService directly by its Docker service name. Nginx and the UI are not involved in that call.
+
+### Circuit breaker
+
+CommentService uses Polly around calls to ProfanityService. After three failed calls the circuit opens for 30 seconds, which stops CommentService from repeatedly calling an unavailable dependency.
+
+When profanity filtering is unavailable, the comment is saved with `pending` status and is not returned by the public comment query. Once the profanity service is available again, the moderation endpoint can be used to retry that comment.
+
+The CommentService health endpoint shows the current circuit state.
+
+### Comment API
+
+CommentService is exposed on port `8081` for this course setup.
+
+```text
+POST /api/comments
+GET  /api/comments/article/{articleId}
+POST /api/comments/{id}/moderate
+GET  /health
+```
+
+Example:
 
 ```json
 {
-  "title": "New wind farm opens in Denmark",
-  "content": "Example article content.",
-  "source": "Happy Headlines",
-  "scope": "europe"
+  "articleId": "11111111-1111-1111-1111-111111111111",
+  "author": "Ahmad",
+  "content": "This is a great article."
 }
 ```
 
-### Run with Docker Swarm
+ProfanityService exposes `POST /api/profanity/filter` internally. It is not published on a host port; CommentService reaches it through the `moderation` network.
 
-Build the ArticleService image:
+## Running the project
+
+Build the three application images:
 
 ```bash
 docker build -t happyheadlines/article-service:week36 -f src/ArticleService/Dockerfile .
+docker build -t happyheadlines/comment-service:week37 -f src/CommentService/Dockerfile .
+docker build -t happyheadlines/profanity-service:week37 -f src/ProfanityService/Dockerfile .
 ```
 
-Start Swarm if it is not already running:
+Start Docker Swarm if needed:
 
 ```bash
 docker swarm init
@@ -78,25 +101,47 @@ Check the services:
 docker stack services happyheadlines
 ```
 
-The API is available through the load balancer at:
+ArticleService is available through the existing Nginx entry point:
 
 ```text
 http://localhost:8080
 ```
 
-Swagger is available at:
+CommentService is available at:
 
 ```text
-http://localhost:8080/swagger
+http://localhost:8081
 ```
 
-To see the three ArticleService replicas:
+### Testing the circuit breaker
+
+Stop ProfanityService:
 
 ```bash
-docker service ps happyheadlines_article-service
+docker service scale happyheadlines_profanity-service=0
 ```
 
-Calling `GET /health` several times also returns an `X-ArticleService-Instance` response header, which can be used to see which replica handled the request.
+Send at least three comment requests to:
+
+```text
+POST http://localhost:8081/api/comments
+```
+
+The comments are accepted as `pending`. After the failure threshold is reached, `GET http://localhost:8081/health` shows the circuit state as open.
+
+Start ProfanityService again:
+
+```bash
+docker service scale happyheadlines_profanity-service=1
+```
+
+Wait for the 30 second break period and retry a pending comment:
+
+```text
+POST http://localhost:8081/api/comments/{commentId}/moderate
+```
+
+A successful retry filters the text and changes the comment status to `published`.
 
 Remove the stack when finished:
 
@@ -104,7 +149,7 @@ Remove the stack when finished:
 docker stack rm happyheadlines
 ```
 
-The password in `docker-stack.yml` is only for the local course environment and should not be reused for a deployed system.
+The database passwords in `docker-stack.yml` are only for the local course environment.
 
 ## Contributors
 

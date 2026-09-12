@@ -4,6 +4,10 @@ VisualStudioVersion = 17.0.31903.59
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ArticleService", "src\ArticleService\ArticleService.csproj", "{A64D29AF-8AA8-4E73-B708-EDC3D143C2D0}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "CommentService", "src\CommentService\CommentService.csproj", "{EFF7E1DA-16AB-4DC2-B7B6-55FABEA72ED3}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ProfanityService", "src\ProfanityService\ProfanityService.csproj", "{21A5D28F-6D2C-4262-84F0-E8347FA6B1EC}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -14,5 +18,13 @@ Global
 		{A64D29AF-8AA8-4E73-B708-EDC3D143C2D0}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{A64D29AF-8AA8-4E73-B708-EDC3D143C2D0}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{A64D29AF-8AA8-4E73-B708-EDC3D143C2D0}.Release|Any CPU.Build.0 = Release|Any CPU
+		{EFF7E1DA-16AB-4DC2-B7B6-55FABEA72ED3}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{EFF7E1DA-16AB-4DC2-B7B6-55FABEA72ED3}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{EFF7E1DA-16AB-4DC2-B7B6-55FABEA72ED3}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{EFF7E1DA-16AB-4DC2-B7B6-55FABEA72ED3}.Release|Any CPU.Build.0 = Release|Any CPU
+		{21A5D28F-6D2C-4262-84F0-E8347FA6B1EC}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{21A5D28F-6D2C-4262-84F0-E8347FA6B1EC}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{21A5D28F-6D2C-4262-84F0-E8347FA6B1EC}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{21A5D28F-6D2C-4262-84F0-E8347FA6B1EC}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 EndGlobal
