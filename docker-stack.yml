@@ -19,9 +19,10 @@ services:
         condition: on-failure
 
   article-service:
-    image: happyheadlines/article-service:week36
+    image: happyheadlines/article-service:week38
     environment:
       ASPNETCORE_URLS: http://+:8080
+      OTEL_EXPORTER_OTLP_ENDPOINT: http://observability:4317
       ConnectionStrings__Africa: Host=africa-db;Port=5432;Database=happy_headlines_africa;Username=postgres;Password=happyheadlines_dev
       ConnectionStrings__Antarctica: Host=antarctica-db;Port=5432;Database=happy_headlines_antarctica;Username=postgres;Password=happyheadlines_dev
       ConnectionStrings__Asia: Host=asia-db;Port=5432;Database=happy_headlines_asia;Username=postgres;Password=happyheadlines_dev
@@ -33,6 +34,7 @@ services:
     networks:
       - frontend
       - backend
+      - observability
     deploy:
       replicas: 3
       restart_policy:
@@ -42,7 +44,7 @@ services:
         order: start-first
 
   comment-service:
-    image: happyheadlines/comment-service:week37
+    image: happyheadlines/comment-service:week38
     ports:
       - target: 8080
         published: 8081
@@ -50,24 +52,63 @@ services:
         mode: ingress
     environment:
       ASPNETCORE_URLS: http://+:8080
+      OTEL_EXPORTER_OTLP_ENDPOINT: http://observability:4317
       ConnectionStrings__Comments: Host=comment-db;Port=5432;Database=happy_headlines_comments;Username=postgres;Password=happyheadlines_dev
       Services__ProfanityService: http://profanity-service:8080/
     networks:
       - comment-data
       - moderation
+      - observability
     deploy:
       replicas: 1
       restart_policy:
         condition: on-failure
 
   profanity-service:
-    image: happyheadlines/profanity-service:week37
+    image: happyheadlines/profanity-service:week38
     environment:
       ASPNETCORE_URLS: http://+:8080
+      OTEL_EXPORTER_OTLP_ENDPOINT: http://observability:4317
       ConnectionStrings__Profanity: Host=profanity-db;Port=5432;Database=happy_headlines_profanity;Username=postgres;Password=happyheadlines_dev
     networks:
       - profanity-data
       - moderation
+      - observability
+    deploy:
+      replicas: 1
+      restart_policy:
+        condition: on-failure
+
+  draft-service:
+    image: happyheadlines/draft-service:week38
+    ports:
+      - target: 8080
+        published: 8082
+        protocol: tcp
+        mode: ingress
+    environment:
+      ASPNETCORE_URLS: http://+:8080
+      OTEL_EXPORTER_OTLP_ENDPOINT: http://observability:4317
+      ConnectionStrings__Drafts: Host=draft-db;Port=5432;Database=happy_headlines_drafts;Username=postgres;Password=happyheadlines_dev
+    networks:
+      - draft-data
+      - observability
+    deploy:
+      replicas: 1
+      restart_policy:
+        condition: on-failure
+
+  observability:
+    image: grafana/otel-lgtm:latest
+    ports:
+      - target: 3000
+        published: 3000
+        protocol: tcp
+        mode: ingress
+    volumes:
+      - observability-data:/data
+    networks:
+      - observability
     deploy:
       replicas: 1
       restart_policy:
@@ -223,6 +264,21 @@ services:
       restart_policy:
         condition: on-failure
 
+  draft-db:
+    image: postgres:16-alpine
+    environment:
+      POSTGRES_DB: happy_headlines_drafts
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: happyheadlines_dev
+    volumes:
+      - draft-data-volume:/var/lib/postgresql/data
+    networks:
+      - draft-data
+    deploy:
+      replicas: 1
+      restart_policy:
+        condition: on-failure
+
 networks:
   frontend:
     driver: overlay
@@ -233,6 +289,10 @@ networks:
   profanity-data:
     driver: overlay
   moderation:
+    driver: overlay
+  draft-data:
+    driver: overlay
+  observability:
     driver: overlay
 
 configs:
@@ -250,3 +310,5 @@ volumes:
   global-data:
   comment-data-volume:
   profanity-data-volume:
+  draft-data-volume:
+  observability-data:
