@@ -1,9 +1,12 @@
 using CommentService.Data;
 using CommentService.Services;
+using HappyHeadlines.Observability;
 using Polly;
 using Polly.CircuitBreaker;
 
 var builder = WebApplication.CreateBuilder(args);
+
+builder.AddHappyHeadlinesObservability("CommentService");
 
 builder.Services.AddControllers();
 builder.Services.AddEndpointsApiExplorer();
@@ -32,6 +35,7 @@ var app = builder.Build();
 
 app.UseSwagger();
 app.UseSwaggerUI();
+app.UseHappyHeadlinesRequestLogging();
 
 app.Use(async (context, next) =>
 {
