@@ -1,0 +1,42 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1600" height="900" viewBox="0 0 1600 900">
+<defs><marker id="arrowhead" markerWidth="10" markerHeight="7" refX="9" refY="3.5" orient="auto"><polygon points="0 0, 10 3.5, 0 7" fill="#4c566a"/></marker></defs>
+<rect width="1600" height="900" fill="#ffffff"/>
+<text x="50" y="55" font-family="Arial, Helvetica, sans-serif" font-size="30" font-weight="bold" fill="#1f2937" text-anchor="start">C4 Level 1 – System Context (Week 38 Monitoring)</text>
+<rect x="70" y="170" width="260" height="120" rx="14" fill="#08427B" stroke="#2f2f2f" stroke-width="2"/>
+<text x="200.0" y="202" font-family="Arial, Helvetica, sans-serif" font-size="20" font-weight="bold" fill="#fff" text-anchor="middle">Publisher</text>
+<text x="200.0" y="228" font-family="Arial, Helvetica, sans-serif" font-size="14" font-weight="normal" fill="#fff" text-anchor="middle">Creates and publishes</text>
+<text x="200.0" y="248" font-family="Arial, Helvetica, sans-serif" font-size="14" font-weight="normal" fill="#fff" text-anchor="middle">positive news</text>
+<rect x="70" y="530" width="260" height="120" rx="14" fill="#08427B" stroke="#2f2f2f" stroke-width="2"/>
+<text x="200.0" y="562" font-family="Arial, Helvetica, sans-serif" font-size="20" font-weight="bold" fill="#fff" text-anchor="middle">Reader</text>
+<text x="200.0" y="588" font-family="Arial, Helvetica, sans-serif" font-size="14" font-weight="normal" fill="#fff" text-anchor="middle">Reads articles and</text>
+<text x="200.0" y="608" font-family="Arial, Helvetica, sans-serif" font-size="14" font-weight="normal" fill="#fff" text-anchor="middle">comments on content</text>
+<rect x="1030" y="90" width="300" height="120" rx="14" fill="#08427B" stroke="#2f2f2f" stroke-width="2"/>
+<text x="1180.0" y="122" font-family="Arial, Helvetica, sans-serif" font-size="20" font-weight="bold" fill="#fff" text-anchor="middle">Development / Ops Team</text>
+<text x="1180.0" y="148" font-family="Arial, Helvetica, sans-serif" font-size="14" font-weight="normal" fill="#fff" text-anchor="middle">Uses monitoring to detect</text>
+<text x="1180.0" y="168" font-family="Arial, Helvetica, sans-serif" font-size="14" font-weight="normal" fill="#fff" text-anchor="middle">and investigate incidents</text>
+<rect x="575" y="315" width="390" height="190" rx="14" fill="#1168BD" stroke="#2f2f2f" stroke-width="2"/>
+<text x="770.0" y="347" font-family="Arial, Helvetica, sans-serif" font-size="20" font-weight="bold" fill="#fff" text-anchor="middle">HappyHeadlines</text>
+<text x="770.0" y="373" font-family="Arial, Helvetica, sans-serif" font-size="14" font-weight="normal" fill="#fff" text-anchor="middle">Positive news platform. Current</text>
+<text x="770.0" y="393" font-family="Arial, Helvetica, sans-serif" font-size="14" font-weight="normal" fill="#fff" text-anchor="middle">implementation includes article,</text>
+<text x="770.0" y="413" font-family="Arial, Helvetica, sans-serif" font-size="14" font-weight="normal" fill="#fff" text-anchor="middle">comment and profanity-filtering</text>
+<text x="770.0" y="433" font-family="Arial, Helvetica, sans-serif" font-size="14" font-weight="normal" fill="#fff" text-anchor="middle">services.</text>
+<rect x="1180" y="380" width="320" height="170" rx="14" fill="#777777" stroke="#2f2f2f" stroke-width="2"/>
+<text x="1340.0" y="412" font-family="Arial, Helvetica, sans-serif" font-size="20" font-weight="bold" fill="#fff" text-anchor="middle">Grafana Cloud</text>
+<text x="1340.0" y="438" font-family="Arial, Helvetica, sans-serif" font-size="14" font-weight="normal" fill="#fff" text-anchor="middle">External monitoring platform</text>
+<text x="1340.0" y="458" font-family="Arial, Helvetica, sans-serif" font-size="14" font-weight="normal" fill="#fff" text-anchor="middle">for metrics, logs, traces,</text>
+<text x="1340.0" y="478" font-family="Arial, Helvetica, sans-serif" font-size="14" font-weight="normal" fill="#fff" text-anchor="middle">dashboards and alerts.</text>
+<line x1="330" y1="230" x2="575" y2="370" stroke="#4c566a" stroke-width="2.5" marker-end="url(#arrowhead)"/>
+<text x="452.5" y="288.0" font-family="Arial, Helvetica, sans-serif" font-size="14" font-weight="normal" fill="#30343b" text-anchor="middle">Publishes articles</text>
+<line x1="330" y1="590" x2="575" y2="455" stroke="#4c566a" stroke-width="2.5" marker-end="url(#arrowhead)"/>
+<text x="452.5" y="538.5" font-family="Arial, Helvetica, sans-serif" font-size="14" font-weight="normal" fill="#30343b" text-anchor="middle">Reads and comments</text>
+<line x1="965" y1="410" x2="1180" y2="450" stroke="#4c566a" stroke-width="2.5" marker-end="url(#arrowhead)"/>
+<text x="1072.5" y="418.0" font-family="Arial, Helvetica, sans-serif" font-size="14" font-weight="normal" fill="#30343b" text-anchor="middle">Metrics, logs and traces</text>
+<line x1="1325" y1="380" x2="1190" y2="210" stroke="#4c566a" stroke-width="2.5" marker-end="url(#arrowhead)"/>
+<text x="1295.5" y="287.0" font-family="Arial, Helvetica, sans-serif" font-size="14" font-weight="normal" fill="#30343b" text-anchor="middle">Dashboards and alerts</text>
+<line x1="1030" y1="150" x2="935" y2="315" stroke="#4c566a" stroke-width="2.5" marker-end="url(#arrowhead)"/>
+<text x="937.5" y="224.5" font-family="Arial, Helvetica, sans-serif" font-size="14" font-weight="normal" fill="#30343b" text-anchor="middle">Investigates incidents</text>
+<text x="50" y="790" font-family="Arial, Helvetica, sans-serif" font-size="16" font-weight="normal" fill="#4b5563" text-anchor="start">Monitoring is treated as a supporting capability and kept outside the core product.</text>
+<rect x="50" y="820" width="18" height="18" fill="#08427B"/><text x="78" y="835" font-family="Arial, Helvetica, sans-serif" font-size="14" font-weight="normal" fill="#333" text-anchor="start">Person</text>
+<rect x="180" y="820" width="18" height="18" fill="#1168BD"/><text x="208" y="835" font-family="Arial, Helvetica, sans-serif" font-size="14" font-weight="normal" fill="#333" text-anchor="start">Software system</text>
+<rect x="365" y="820" width="18" height="18" fill="#777777"/><text x="393" y="835" font-family="Arial, Helvetica, sans-serif" font-size="14" font-weight="normal" fill="#333" text-anchor="start">External system</text>
+</svg>
