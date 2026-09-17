@@ -1,0 +1,89 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1800" height="1200" viewBox="0 0 1800 1200">
+<defs><marker id="arrowhead" markerWidth="10" markerHeight="7" refX="9" refY="3.5" orient="auto"><polygon points="0 0, 10 3.5, 0 7" fill="#4c566a"/></marker></defs>
+<rect width="1800" height="1200" fill="#ffffff"/>
+<text x="45" y="50" font-family="Arial, Helvetica, sans-serif" font-size="30" font-weight="bold" fill="#1f2937" text-anchor="start">C4 Level 2 – Containers (Week 38 Monitoring)</text>
+<rect x="35" y="170" width="230" height="105" rx="14" fill="#08427B" stroke="#2f2f2f" stroke-width="2"/>
+<text x="150.0" y="200" font-family="Arial, Helvetica, sans-serif" font-size="19" font-weight="bold" fill="#fff" text-anchor="middle">Publisher</text>
+<text x="150.0" y="225" font-family="Arial, Helvetica, sans-serif" font-size="13" font-weight="normal" fill="#fff" text-anchor="middle">Publishes articles</text>
+<rect x="35" y="470" width="230" height="105" rx="14" fill="#08427B" stroke="#2f2f2f" stroke-width="2"/>
+<text x="150.0" y="500" font-family="Arial, Helvetica, sans-serif" font-size="19" font-weight="bold" fill="#fff" text-anchor="middle">Reader</text>
+<text x="150.0" y="525" font-family="Arial, Helvetica, sans-serif" font-size="13" font-weight="normal" fill="#fff" text-anchor="middle">Reads articles and</text>
+<text x="150.0" y="543" font-family="Arial, Helvetica, sans-serif" font-size="13" font-weight="normal" fill="#fff" text-anchor="middle">comments</text>
+<rect x="1500" y="100" width="260" height="115" rx="14" fill="#08427B" stroke="#2f2f2f" stroke-width="2"/>
+<text x="1630.0" y="130" font-family="Arial, Helvetica, sans-serif" font-size="19" font-weight="bold" fill="#fff" text-anchor="middle">Development / Ops Team</text>
+<text x="1630.0" y="155" font-family="Arial, Helvetica, sans-serif" font-size="13" font-weight="normal" fill="#fff" text-anchor="middle">Uses dashboards and alerts</text>
+<text x="1630.0" y="173" font-family="Arial, Helvetica, sans-serif" font-size="13" font-weight="normal" fill="#fff" text-anchor="middle">during incidents</text>
+<rect x="1500" y="735" width="260" height="145" rx="14" fill="#777777" stroke="#2f2f2f" stroke-width="2"/>
+<text x="1630.0" y="765" font-family="Arial, Helvetica, sans-serif" font-size="19" font-weight="bold" fill="#fff" text-anchor="middle">Grafana Cloud</text>
+<text x="1630.0" y="790" font-family="Arial, Helvetica, sans-serif" font-size="13" font-weight="normal" fill="#fff" text-anchor="middle">Hosted metrics, logs, traces,</text>
+<text x="1630.0" y="808" font-family="Arial, Helvetica, sans-serif" font-size="13" font-weight="normal" fill="#fff" text-anchor="middle">dashboards and alerting</text>
+<rect x="310" y="95" width="1130" height="1025" rx="18" fill="#f8fbff" stroke="#1168BD" stroke-width="3"/>
+<text x="340" y="130" font-family="Arial, Helvetica, sans-serif" font-size="22" font-weight="bold" fill="#1168BD" text-anchor="start">HappyHeadlines</text>
+<rect x="390" y="175" width="300" height="110" rx="14" fill="#438DD5" stroke="#2f2f2f" stroke-width="2"/>
+<text x="540.0" y="205" font-family="Arial, Helvetica, sans-serif" font-size="19" font-weight="bold" fill="#fff" text-anchor="middle">Nginx Load Balancer</text>
+<text x="540.0" y="230" font-family="Arial, Helvetica, sans-serif" font-size="13" font-weight="normal" fill="#fff" text-anchor="middle">[Container: nginx] Public entry</text>
+<text x="540.0" y="248" font-family="Arial, Helvetica, sans-serif" font-size="13" font-weight="normal" fill="#fff" text-anchor="middle">point for article traffic.</text>
+<rect x="390" y="355" width="300" height="130" rx="14" fill="#438DD5" stroke="#2f2f2f" stroke-width="2"/>
+<text x="540.0" y="385" font-family="Arial, Helvetica, sans-serif" font-size="19" font-weight="bold" fill="#fff" text-anchor="middle">Article Service</text>
+<text x="540.0" y="410" font-family="Arial, Helvetica, sans-serif" font-size="13" font-weight="normal" fill="#fff" text-anchor="middle">[Container: ASP.NET Core] 3</text>
+<text x="540.0" y="428" font-family="Arial, Helvetica, sans-serif" font-size="13" font-weight="normal" fill="#fff" text-anchor="middle">replicas. CRUD API and geographic</text>
+<text x="540.0" y="446" font-family="Arial, Helvetica, sans-serif" font-size="13" font-weight="normal" fill="#fff" text-anchor="middle">shard routing.</text>
+<rect x="380" y="595" width="320" height="155" rx="14" fill="#2E7D32" stroke="#2f2f2f" stroke-width="2"/>
+<text x="540.0" y="625" font-family="Arial, Helvetica, sans-serif" font-size="19" font-weight="bold" fill="#fff" text-anchor="middle">Article PostgreSQL Shards</text>
+<text x="540.0" y="650" font-family="Arial, Helvetica, sans-serif" font-size="13" font-weight="normal" fill="#fff" text-anchor="middle">[Databases: PostgreSQL] 8 shards:</text>
+<text x="540.0" y="668" font-family="Arial, Helvetica, sans-serif" font-size="13" font-weight="normal" fill="#fff" text-anchor="middle">Africa, Antarctica, Asia, Australia,</text>
+<text x="540.0" y="686" font-family="Arial, Helvetica, sans-serif" font-size="13" font-weight="normal" fill="#fff" text-anchor="middle">Europe, North America, South America</text>
+<text x="540.0" y="704" font-family="Arial, Helvetica, sans-serif" font-size="13" font-weight="normal" fill="#fff" text-anchor="middle">and Global.</text>
+<rect x="830" y="280" width="320" height="135" rx="14" fill="#438DD5" stroke="#2f2f2f" stroke-width="2"/>
+<text x="990.0" y="310" font-family="Arial, Helvetica, sans-serif" font-size="19" font-weight="bold" fill="#fff" text-anchor="middle">Comment Service</text>
+<text x="990.0" y="335" font-family="Arial, Helvetica, sans-serif" font-size="13" font-weight="normal" fill="#fff" text-anchor="middle">[Container: ASP.NET Core] Stores</text>
+<text x="990.0" y="353" font-family="Arial, Helvetica, sans-serif" font-size="13" font-weight="normal" fill="#fff" text-anchor="middle">comments and calls Profanity Service</text>
+<text x="990.0" y="371" font-family="Arial, Helvetica, sans-serif" font-size="13" font-weight="normal" fill="#fff" text-anchor="middle">through a Polly circuit breaker.</text>
+<rect x="830" y="500" width="320" height="120" rx="14" fill="#438DD5" stroke="#2f2f2f" stroke-width="2"/>
+<text x="990.0" y="530" font-family="Arial, Helvetica, sans-serif" font-size="19" font-weight="bold" fill="#fff" text-anchor="middle">Profanity Service</text>
+<text x="990.0" y="555" font-family="Arial, Helvetica, sans-serif" font-size="13" font-weight="normal" fill="#fff" text-anchor="middle">[Container: ASP.NET Core] Internal</text>
+<text x="990.0" y="573" font-family="Arial, Helvetica, sans-serif" font-size="13" font-weight="normal" fill="#fff" text-anchor="middle">comment-moderation service.</text>
+<rect x="770" y="700" width="255" height="120" rx="14" fill="#2E7D32" stroke="#2f2f2f" stroke-width="2"/>
+<text x="897.5" y="730" font-family="Arial, Helvetica, sans-serif" font-size="19" font-weight="bold" fill="#fff" text-anchor="middle">Comment Database</text>
+<text x="897.5" y="755" font-family="Arial, Helvetica, sans-serif" font-size="13" font-weight="normal" fill="#fff" text-anchor="middle">[Database: PostgreSQL] Owned by</text>
+<text x="897.5" y="773" font-family="Arial, Helvetica, sans-serif" font-size="13" font-weight="normal" fill="#fff" text-anchor="middle">Comment Service.</text>
+<rect x="1080" y="700" width="255" height="120" rx="14" fill="#2E7D32" stroke="#2f2f2f" stroke-width="2"/>
+<text x="1207.5" y="730" font-family="Arial, Helvetica, sans-serif" font-size="19" font-weight="bold" fill="#fff" text-anchor="middle">Profanity Database</text>
+<text x="1207.5" y="755" font-family="Arial, Helvetica, sans-serif" font-size="13" font-weight="normal" fill="#fff" text-anchor="middle">[Database: PostgreSQL] Owned by</text>
+<text x="1207.5" y="773" font-family="Arial, Helvetica, sans-serif" font-size="13" font-weight="normal" fill="#fff" text-anchor="middle">Profanity Service.</text>
+<rect x="650" y="925" width="450" height="135" rx="14" fill="#D97706" stroke="#2f2f2f" stroke-width="2"/>
+<text x="875.0" y="955" font-family="Arial, Helvetica, sans-serif" font-size="19" font-weight="bold" fill="#fff" text-anchor="middle">OpenTelemetry Collector</text>
+<text x="875.0" y="980" font-family="Arial, Helvetica, sans-serif" font-size="13" font-weight="normal" fill="#fff" text-anchor="middle">[Container] Receives metrics, structured logs and</text>
+<text x="875.0" y="998" font-family="Arial, Helvetica, sans-serif" font-size="13" font-weight="normal" fill="#fff" text-anchor="middle">distributed traces from the application and forwards</text>
+<text x="875.0" y="1016" font-family="Arial, Helvetica, sans-serif" font-size="13" font-weight="normal" fill="#fff" text-anchor="middle">them to Grafana Cloud.</text>
+<line x1="265" y1="220" x2="390" y2="220" stroke="#4c566a" stroke-width="2.5" marker-end="url(#arrowhead)"/>
+<text x="325" y="205" font-family="Arial, Helvetica, sans-serif" font-size="13" font-weight="normal" fill="#30343b" text-anchor="middle">Article requests</text>
+<polyline points="265,505 330,505 330,250 390,250" fill="none" stroke="#4c566a" stroke-width="2.5" marker-end="url(#arrowhead)"/>
+<text x="330" y="390" font-family="Arial, Helvetica, sans-serif" font-size="13" font-weight="normal" fill="#30343b" text-anchor="middle">Reads articles</text>
+<polyline points="265,525 740,525 740,345 830,345" fill="none" stroke="#4c566a" stroke-width="2.5" marker-end="url(#arrowhead)"/>
+<text x="735" y="500" font-family="Arial, Helvetica, sans-serif" font-size="13" font-weight="normal" fill="#30343b" text-anchor="middle">Comments</text>
+<line x1="540" y1="285" x2="540" y2="355" stroke="#4c566a" stroke-width="2.5" marker-end="url(#arrowhead)"/>
+<text x="585" y="325" font-family="Arial, Helvetica, sans-serif" font-size="13" font-weight="normal" fill="#30343b" text-anchor="middle">Routes</text>
+<line x1="540" y1="485" x2="540" y2="595" stroke="#4c566a" stroke-width="2.5" marker-end="url(#arrowhead)"/>
+<text x="610" y="545" font-family="Arial, Helvetica, sans-serif" font-size="13" font-weight="normal" fill="#30343b" text-anchor="middle">Article data</text>
+<line x1="990" y1="415" x2="990" y2="500" stroke="#4c566a" stroke-width="2.5" marker-end="url(#arrowhead)"/>
+<text x="1070" y="462" font-family="Arial, Helvetica, sans-serif" font-size="13" font-weight="normal" fill="#30343b" text-anchor="middle">Moderation call</text>
+<polyline points="930,415 930,660 895,660 895,700" fill="none" stroke="#4c566a" stroke-width="2.5" marker-end="url(#arrowhead)"/>
+<text x="875" y="650" font-family="Arial, Helvetica, sans-serif" font-size="13" font-weight="normal" fill="#30343b" text-anchor="middle">Comment data</text>
+<polyline points="1060,620 1060,665 1205,665 1205,700" fill="none" stroke="#4c566a" stroke-width="2.5" marker-end="url(#arrowhead)"/>
+<text x="1150" y="650" font-family="Arial, Helvetica, sans-serif" font-size="13" font-weight="normal" fill="#30343b" text-anchor="middle">Profanity data</text>
+<polyline points="690,230 725,230 725,875 720,875 720,925" fill="none" stroke="#D97706" stroke-width="2.5" stroke-dasharray="8 6" marker-end="url(#arrowhead)"/>
+<polyline points="690,420 755,420 755,875 800,875 800,925" fill="none" stroke="#D97706" stroke-width="2.5" stroke-dasharray="8 6" marker-end="url(#arrowhead)"/>
+<polyline points="1150,345 1190,345 1190,875 960,875 960,925" fill="none" stroke="#D97706" stroke-width="2.5" stroke-dasharray="8 6" marker-end="url(#arrowhead)"/>
+<polyline points="1150,560 1220,560 1220,890 1040,890 1040,925" fill="none" stroke="#D97706" stroke-width="2.5" stroke-dasharray="8 6" marker-end="url(#arrowhead)"/>
+<text x="880" y="900" font-family="Arial, Helvetica, sans-serif" font-size="14" font-weight="bold" fill="#D97706" text-anchor="middle">metrics / logs / traces</text>
+<line x1="1100" y1="992" x2="1500" y2="805" stroke="#D97706" stroke-width="2.5" marker-end="url(#arrowhead)"/>
+<text x="1290" y="885" font-family="Arial, Helvetica, sans-serif" font-size="13" font-weight="normal" fill="#30343b" text-anchor="middle">OTLP</text>
+<line x1="1630" y1="735" x2="1630" y2="215" stroke="#4c566a" stroke-width="2.5" marker-end="url(#arrowhead)"/>
+<text x="1700" y="475" font-family="Arial, Helvetica, sans-serif" font-size="13" font-weight="normal" fill="#30343b" text-anchor="middle">Dashboards and alerts</text>
+<text x="340" y="1080" font-family="Arial, Helvetica, sans-serif" font-size="14" font-weight="normal" fill="#6b7280" text-anchor="start">Week 38 monitoring addition: OpenTelemetry Collector inside HappyHeadlines; Grafana Cloud remains an external non-core system.</text>
+<rect x="340" y="1095" width="16" height="16" fill="#438DD5"/><text x="365" y="1108" font-family="Arial, Helvetica, sans-serif" font-size="13" font-weight="normal" fill="#333" text-anchor="start">Application container</text>
+<rect x="520" y="1095" width="16" height="16" fill="#2E7D32"/><text x="545" y="1108" font-family="Arial, Helvetica, sans-serif" font-size="13" font-weight="normal" fill="#333" text-anchor="start">Database</text>
+<rect x="635" y="1095" width="16" height="16" fill="#D97706"/><text x="660" y="1108" font-family="Arial, Helvetica, sans-serif" font-size="13" font-weight="normal" fill="#333" text-anchor="start">Monitoring container</text>
+<line x1="835" y1="1103" x2="885" y2="1103" stroke="#D97706" stroke-width="2.5" stroke-dasharray="8 6"/><text x="895" y="1108" font-family="Arial, Helvetica, sans-serif" font-size="13" font-weight="normal" fill="#333" text-anchor="start">Telemetry</text>
+</svg>
