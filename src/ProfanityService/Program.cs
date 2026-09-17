@@ -1,7 +1,10 @@
+using HappyHeadlines.Observability;
 using ProfanityService.Data;
 using ProfanityService.Services;
 
 var builder = WebApplication.CreateBuilder(args);
+
+builder.AddHappyHeadlinesObservability("ProfanityService");
 
 builder.Services.AddControllers();
 builder.Services.AddEndpointsApiExplorer();
@@ -13,6 +16,7 @@ var app = builder.Build();
 
 app.UseSwagger();
 app.UseSwaggerUI();
+app.UseHappyHeadlinesRequestLogging();
 
 app.Use(async (context, next) =>
 {
