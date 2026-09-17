@@ -1,6 +1,9 @@
 using ArticleService.Data;
+using HappyHeadlines.Observability;
 
 var builder = WebApplication.CreateBuilder(args);
+
+builder.AddHappyHeadlinesObservability("ArticleService");
 
 builder.Services.AddControllers();
 builder.Services.AddEndpointsApiExplorer();
@@ -12,6 +15,7 @@ var app = builder.Build();
 
 app.UseSwagger();
 app.UseSwaggerUI();
+app.UseHappyHeadlinesRequestLogging();
 
 app.Use(async (context, next) =>
 {
