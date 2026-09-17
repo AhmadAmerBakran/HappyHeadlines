@@ -73,6 +73,19 @@ Example:
 
 ProfanityService exposes `POST /api/profanity/filter` internally. It is not published on a host port; CommentService reaches it through the `moderation` network.
 
+## Week 38 - monitoring architecture
+
+The C4 diagrams are updated with the monitoring needs of the current system.
+
+Monitoring is treated as a supporting capability rather than a core HappyHeadlines feature. The application services send metrics, structured logs and distributed traces to an OpenTelemetry Collector. The collector forwards the telemetry to Grafana Cloud, where the development/operations team can use dashboards and alerts while investigating incidents.
+
+The monitoring architecture is shown in:
+
+- `docs/HappyHeadlines_C4_Level1_Monitoring.svg`
+- `docs/HappyHeadlines_C4_Level2_Monitoring.svg`
+
+The diagrams describe the monitoring target architecture for the course exercise. The collector and Grafana integration are not deployed in `docker-stack.yml` yet.
+
 ## Running the project
 
 Build the three application images:
