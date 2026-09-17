@@ -2,6 +2,7 @@ FROM mcr.microsoft.com/dotnet/sdk:8.0 AS build
 WORKDIR /src
 
 COPY ["src/ArticleService/ArticleService.csproj", "src/ArticleService/"]
+COPY ["src/Shared/Observability/HappyHeadlines.Observability.csproj", "src/Shared/Observability/"]
 RUN dotnet restore "src/ArticleService/ArticleService.csproj"
 
 COPY . .
