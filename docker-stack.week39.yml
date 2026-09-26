@@ -3,15 +3,23 @@ version: "3.8"
 services:
   article-service:
     image: happyheadlines/article-service:week39
+    environment:
+      OTEL_METRIC_EXPORT_INTERVAL: 5000
 
   comment-service:
     image: happyheadlines/comment-service:week39
+    environment:
+      OTEL_METRIC_EXPORT_INTERVAL: 5000
 
   profanity-service:
     image: happyheadlines/profanity-service:week39
+    environment:
+      OTEL_METRIC_EXPORT_INTERVAL: 5000
 
   draft-service:
     image: happyheadlines/draft-service:week39
+    environment:
+      OTEL_METRIC_EXPORT_INTERVAL: 5000
 
   observability:
     environment:
