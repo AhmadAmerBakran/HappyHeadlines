@@ -21,4 +21,10 @@ public static class HappyHeadlinesDiagnostics
 
     public static Activity? StartActivity(string name, ActivityKind kind = ActivityKind.Internal)
         => ActivitySource.StartActivity(name, kind);
+
+    public static Activity? StartActivity(
+        string name,
+        ActivityKind kind,
+        ActivityContext parentContext)
+        => ActivitySource.StartActivity(name, kind, parentContext);
 }

@@ -15,17 +15,24 @@ public sealed class ArticleRepository(IArticleShardResolver shardResolver) : IAr
             VALUES (@id, @title, @content, @source, @scope, @createdAtUtc, @updatedAtUtc);
             """;
 
-        await using var command = new NpgsqlCommand(sql, connection);
-        command.Parameters.AddWithValue("id", article.Id);
-        command.Parameters.AddWithValue("title", article.Title);
-        command.Parameters.AddWithValue("content", article.Content);
-        command.Parameters.AddWithValue("source", (object?)article.Source ?? DBNull.Value);
-        command.Parameters.AddWithValue("scope", article.Scope);
-        command.Parameters.AddWithValue("createdAtUtc", article.CreatedAtUtc);
-        command.Parameters.AddWithValue("updatedAtUtc", article.UpdatedAtUtc);
-
+        await using var command = CreateInsertCommand(connection, sql, article);
         await command.ExecuteNonQueryAsync(cancellationToken);
         return article;
+    }
+
+    public async Task<bool> StorePublishedAsync(Article article, CancellationToken cancellationToken)
+    {
+        await using var connection = new NpgsqlConnection(shardResolver.GetConnectionString(article.Scope));
+        await connection.OpenAsync(cancellationToken);
+
+        const string sql = """
+            INSERT INTO articles (id, title, content, source, scope, created_at_utc, updated_at_utc)
+            VALUES (@id, @title, @content, @source, @scope, @createdAtUtc, @updatedAtUtc)
+            ON CONFLICT (id) DO NOTHING;
+            """;
+
+        await using var command = CreateInsertCommand(connection, sql, article);
+        return await command.ExecuteNonQueryAsync(cancellationToken) == 1;
     }
 
     public async Task<Article?> GetByIdAsync(string scope, Guid id, CancellationToken cancellationToken)
@@ -115,6 +122,22 @@ public sealed class ArticleRepository(IArticleShardResolver shardResolver) : IAr
         command.Parameters.AddWithValue("id", id);
 
         return await command.ExecuteNonQueryAsync(cancellationToken) == 1;
+    }
+
+    private static NpgsqlCommand CreateInsertCommand(
+        NpgsqlConnection connection,
+        string sql,
+        Article article)
+    {
+        var command = new NpgsqlCommand(sql, connection);
+        command.Parameters.AddWithValue("id", article.Id);
+        command.Parameters.AddWithValue("title", article.Title);
+        command.Parameters.AddWithValue("content", article.Content);
+        command.Parameters.AddWithValue("source", (object?)article.Source ?? DBNull.Value);
+        command.Parameters.AddWithValue("scope", article.Scope);
+        command.Parameters.AddWithValue("createdAtUtc", article.CreatedAtUtc);
+        command.Parameters.AddWithValue("updatedAtUtc", article.UpdatedAtUtc);
+        return command;
     }
 
     private static Article Map(NpgsqlDataReader reader)
