@@ -36,6 +36,9 @@ public sealed class ArticlePublisher(
             durable: true,
             autoDelete: false);
 
+        DeclareSubscription(channel, ArticleMessaging.ArticleServiceQueue);
+        DeclareSubscription(channel, ArticleMessaging.NewsletterServiceQueue);
+
         var properties = channel.CreateBasicProperties();
         properties.Persistent = true;
         properties.ContentType = "application/json";
@@ -57,6 +60,16 @@ public sealed class ArticlePublisher(
             article.Scope);
 
         return Task.CompletedTask;
+    }
+
+    private static void DeclareSubscription(IModel channel, string queue)
+    {
+        channel.QueueDeclare(
+            queue: queue,
+            durable: true,
+            exclusive: false,
+            autoDelete: false);
+        channel.QueueBind(queue, ArticleMessaging.Exchange, string.Empty);
     }
 
     private IConnection GetConnection()
