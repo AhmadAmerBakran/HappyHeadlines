@@ -36,6 +36,12 @@ We log IDs and useful operational details, but not the draft body itself.
 
 The updated monitoring C4 diagrams are in `docs`.
 
+## Week 39 - distributed tracing
+
+Added request metrics to the shared observability setup and a small Grafana overview for incident investigation. It shows request rate, failed requests, average response time and p95 response time per service.
+
+The dashboard is intended to narrow down the service and time period that needs a closer look in the traces. Notes for the learning activity are in `docs/week39-distributed-tracing.md`.
+
 ### Local endpoints
 
 ```text
@@ -48,13 +54,13 @@ Grafana          http://localhost:3000
 ### Build and run
 
 ```bash
-docker build -t happyheadlines/article-service:week38 -f src/ArticleService/Dockerfile .
-docker build -t happyheadlines/comment-service:week38 -f src/CommentService/Dockerfile .
-docker build -t happyheadlines/profanity-service:week38 -f src/ProfanityService/Dockerfile .
-docker build -t happyheadlines/draft-service:week38 -f src/DraftService/Dockerfile .
+docker build -t happyheadlines/article-service:week39 -f src/ArticleService/Dockerfile .
+docker build -t happyheadlines/comment-service:week39 -f src/CommentService/Dockerfile .
+docker build -t happyheadlines/profanity-service:week39 -f src/ProfanityService/Dockerfile .
+docker build -t happyheadlines/draft-service:week39 -f src/DraftService/Dockerfile .
 
 docker swarm init
-docker stack deploy -c docker-stack.yml happyheadlines
+docker stack deploy -c docker-stack.yml -c docker-stack.week39.yml happyheadlines
 ```
 
 If Swarm is already enabled, skip `docker swarm init`.
