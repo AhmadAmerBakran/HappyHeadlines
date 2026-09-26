@@ -5,6 +5,14 @@ services:
     image: happyheadlines/article-service:week39
     environment:
       OTEL_METRIC_EXPORT_INTERVAL: 5000
+      RabbitMq__HostName: article-queue
+      RabbitMq__UserName: application
+      RabbitMq__Password: happyheadlines_dev
+    networks:
+      - frontend
+      - backend
+      - observability
+      - messaging
 
   comment-service:
     image: happyheadlines/comment-service:week39
@@ -21,6 +29,91 @@ services:
     environment:
       OTEL_METRIC_EXPORT_INTERVAL: 5000
 
+  webapp:
+    image: happyheadlines/webapp:week39
+    ports:
+      - target: 8080
+        published: 8085
+        protocol: tcp
+        mode: ingress
+    environment:
+      ASPNETCORE_URLS: http://+:8080
+      OTEL_EXPORTER_OTLP_ENDPOINT: http://observability:4317
+      OTEL_METRIC_EXPORT_INTERVAL: 5000
+      Services__PublisherService: http://publisher-service:8080/
+    networks:
+      - publishing
+      - observability
+    deploy:
+      replicas: 1
+      restart_policy:
+        condition: on-failure
+
+  publisher-service:
+    image: happyheadlines/publisher-service:week39
+    ports:
+      - target: 8080
+        published: 8083
+        protocol: tcp
+        mode: ingress
+    environment:
+      ASPNETCORE_URLS: http://+:8080
+      OTEL_EXPORTER_OTLP_ENDPOINT: http://observability:4317
+      OTEL_METRIC_EXPORT_INTERVAL: 5000
+      RabbitMq__HostName: article-queue
+      RabbitMq__UserName: application
+      RabbitMq__Password: happyheadlines_dev
+    networks:
+      - publishing
+      - messaging
+      - observability
+    deploy:
+      replicas: 1
+      restart_policy:
+        condition: on-failure
+
+  newsletter-service:
+    image: happyheadlines/newsletter-service:week39
+    ports:
+      - target: 8080
+        published: 8084
+        protocol: tcp
+        mode: ingress
+    environment:
+      ASPNETCORE_URLS: http://+:8080
+      OTEL_EXPORTER_OTLP_ENDPOINT: http://observability:4317
+      OTEL_METRIC_EXPORT_INTERVAL: 5000
+      RabbitMq__HostName: article-queue
+      RabbitMq__UserName: application
+      RabbitMq__Password: happyheadlines_dev
+      Services__ArticleService: http://article-service:8080/
+    networks:
+      - messaging
+      - observability
+    deploy:
+      replicas: 1
+      restart_policy:
+        condition: on-failure
+
+  article-queue:
+    image: rabbitmq:3.13-management-alpine
+    ports:
+      - target: 15672
+        published: 15672
+        protocol: tcp
+        mode: ingress
+    environment:
+      RABBITMQ_DEFAULT_USER: application
+      RABBITMQ_DEFAULT_PASS: happyheadlines_dev
+    volumes:
+      - rabbitmq-data:/var/lib/rabbitmq
+    networks:
+      - messaging
+    deploy:
+      replicas: 1
+      restart_policy:
+        condition: on-failure
+
   observability:
     environment:
       GF_DASHBOARDS_DEFAULT_HOME_DASHBOARD_PATH: /otel-lgtm/grafana/conf/provisioning/dashboards/custom/happy-headlines-overview.json
@@ -30,8 +123,17 @@ services:
       - source: grafana_dashboard_overview
         target: /otel-lgtm/grafana/conf/provisioning/dashboards/custom/happy-headlines-overview.json
 
+networks:
+  publishing:
+    driver: overlay
+  messaging:
+    driver: overlay
+
 configs:
   grafana_dashboard_provider:
     file: ./infra/grafana/dashboards.yml
   grafana_dashboard_overview:
     file: ./infra/grafana/happy-headlines-overview.json
+
+volumes:
+  rabbitmq-data:

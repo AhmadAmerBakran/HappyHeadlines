@@ -1,17 +1,20 @@
-using ArticleService.Data;
-using ArticleService.Messaging;
 using HappyHeadlines.Observability;
+using NewsletterService.Services;
 
 var builder = WebApplication.CreateBuilder(args);
 
-builder.AddHappyHeadlinesObservability("ArticleService");
+builder.AddHappyHeadlinesObservability("NewsletterService");
 
 builder.Services.AddControllers();
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
-builder.Services.AddSingleton<IArticleShardResolver, ArticleShardResolver>();
-builder.Services.AddScoped<IArticleRepository, ArticleRepository>();
+builder.Services.AddSingleton<NewsletterStore>();
 builder.Services.AddHostedService<PublishedArticleConsumer>();
+builder.Services.AddHttpClient<ArticleClient>(client =>
+{
+    client.BaseAddress = new Uri(
+        builder.Configuration["Services:ArticleService"] ?? "http://localhost:8080/");
+});
 
 var app = builder.Build();
 
@@ -19,19 +22,11 @@ app.UseSwagger();
 app.UseSwaggerUI();
 app.UseHappyHeadlinesRequestLogging();
 
-app.Use(async (context, next) =>
-{
-    context.Response.Headers["X-ArticleService-Instance"] = Environment.MachineName;
-    await next();
-});
-
 app.MapControllers();
 app.MapGet("/health", () => Results.Ok(new
 {
     status = "ok",
     instance = Environment.MachineName
 }));
-
-await DatabaseInitializer.InitialiseAsync(app.Services, app.Lifetime.ApplicationStopping);
 
 app.Run();

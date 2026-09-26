@@ -28,27 +28,25 @@ Added comments and profanity filtering.
 
 Added `DraftService` and `DraftDatabase`.
 
-DraftService supports creating, reading, updating and deleting article drafts. The database is PostgreSQL and is isolated on its own network.
-
-Logging and tracing are configured in `src/Shared/Observability` so the same setup can be reused by the services. Logs are structured and requests are traced with OpenTelemetry. Draft database operations also create their own spans. Telemetry is sent to the local observability service and can be viewed in Grafana.
-
-We log IDs and useful operational details, but not the draft body itself.
-
-The updated monitoring C4 diagrams are in `docs`.
+Logging and tracing are shared through `src/Shared/Observability`. Telemetry is sent to the local Grafana observability stack.
 
 ## Week 39 - distributed tracing
 
-Added request metrics to the shared observability setup and a small Grafana overview for incident investigation. It shows request rate, failed requests, average response time and p95 response time per service.
+Added a publishing flow with `WebApp`, `PublisherService`, RabbitMQ and `NewsletterService`. Published articles are sent to both `ArticleService` and `NewsletterService`.
 
-The dashboard is intended to narrow down the service and time period that needs a closer look in the traces. Notes for the learning activity are in `docs/week39-distributed-tracing.md`.
+Trace context is copied into the RabbitMQ message headers and restored by each consumer, so the trace continues when a request crosses the queue boundary. The Grafana overview from the learning activity is kept for incident investigation.
 
 ### Local endpoints
 
 ```text
-ArticleService   http://localhost:8080
-CommentService   http://localhost:8081
-DraftService     http://localhost:8082
-Grafana          http://localhost:3000
+ArticleService      http://localhost:8080
+CommentService      http://localhost:8081
+DraftService        http://localhost:8082
+PublisherService    http://localhost:8083
+NewsletterService   http://localhost:8084
+WebApp              http://localhost:8085
+Grafana             http://localhost:3000
+RabbitMQ            http://localhost:15672
 ```
 
 ### Build and run
@@ -58,6 +56,9 @@ docker build -t happyheadlines/article-service:week39 -f src/ArticleService/Dock
 docker build -t happyheadlines/comment-service:week39 -f src/CommentService/Dockerfile .
 docker build -t happyheadlines/profanity-service:week39 -f src/ProfanityService/Dockerfile .
 docker build -t happyheadlines/draft-service:week39 -f src/DraftService/Dockerfile .
+docker build -t happyheadlines/publisher-service:week39 -f src/PublisherService/Dockerfile .
+docker build -t happyheadlines/newsletter-service:week39 -f src/NewsletterService/Dockerfile .
+docker build -t happyheadlines/webapp:week39 -f src/WebApp/Dockerfile .
 
 docker swarm init
 docker stack deploy -c docker-stack.yml -c docker-stack.week39.yml happyheadlines

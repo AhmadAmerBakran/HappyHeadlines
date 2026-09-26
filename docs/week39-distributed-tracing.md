@@ -8,21 +8,10 @@ The paper suggests reducing that search space by extracting useful metrics from 
 
 ## Dashboard changes
 
-The Grafana overview now focuses on the signals that are useful when looking for an incident:
+The Grafana overview shows requests per minute, average response time, failed requests and p95 response time for each service. It is meant to show where to start looking before opening an individual trace.
 
-- requests per minute for each service
-- average response time
-- failed requests
-- 95th percentile response time
+## Project tracing
 
-The dashboard is meant to show where to start looking. The trace view is still used afterwards to follow a request across services and find the cause.
+The publishing flow uses RabbitMQ. The current trace context is added to each published message and restored by `ArticleService` and `NewsletterService`, so queue processing stays connected to the original request trace.
 
-## Running it
-
-Build the four service images with the `week39` tag, then deploy the normal stack together with `docker-stack.week39.yml`.
-
-```bash
-docker stack deploy -c docker-stack.yml -c docker-stack.week39.yml happyheadlines
-```
-
-Open Grafana at `http://localhost:3000`. The **Happy Headlines overview** dashboard is provisioned automatically. Generate a few requests against the services and use a recent time range before taking the screenshot for Moodle.
+All services export telemetry to the same local observability stack.
