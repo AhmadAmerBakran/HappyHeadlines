@@ -1,57 +1,7 @@
 using System.Net.Http.Json;
 using HappyHeadlines.Observability;
 
-var builder = WebApplication.CreateBuilder(args);
-
-builder.AddHappyHeadlinesObservability("WebApp");
-builder.Services.AddHttpClient("publisher", client =>
-{
-    client.BaseAddress = new Uri(
-        builder.Configuration["Services:PublisherService"] ?? "http://localhost:8083/");
-});
-
-var app = builder.Build();
-
-app.UseHappyHeadlinesRequestLogging();
-
-app.MapGet("/", () => Results.Content(Page, "text/html"));
-
-app.MapPost("/publish", async (
-    HttpRequest request,
-    IHttpClientFactory httpClientFactory,
-    CancellationToken cancellationToken) =>
-{
-    var form = await request.ReadFormAsync(cancellationToken);
-    var payload = new
-    {
-        title = form["title"].ToString(),
-        content = form["content"].ToString(),
-        source = form["source"].ToString(),
-        scope = form["scope"].ToString()
-    };
-
-    var client = httpClientFactory.CreateClient("publisher");
-    using var response = await client.PostAsJsonAsync(
-        "api/publishing",
-        payload,
-        cancellationToken);
-
-    var body = await response.Content.ReadAsStringAsync(cancellationToken);
-    return Results.Content(
-        body,
-        "application/json",
-        statusCode: (int)response.StatusCode);
-});
-
-app.MapGet("/health", () => Results.Ok(new
-{
-    status = "ok",
-    instance = Environment.MachineName
-}));
-
-app.Run();
-
-const string Page = """
+const string page = """
 <!doctype html>
 <html lang="en">
 <head>
@@ -90,3 +40,53 @@ const string Page = """
 </body>
 </html>
 """;
+
+var builder = WebApplication.CreateBuilder(args);
+
+builder.AddHappyHeadlinesObservability("WebApp");
+builder.Services.AddHttpClient("publisher", client =>
+{
+    client.BaseAddress = new Uri(
+        builder.Configuration["Services:PublisherService"] ?? "http://localhost:8083/");
+});
+
+var app = builder.Build();
+
+app.UseHappyHeadlinesRequestLogging();
+
+app.MapGet("/", () => Results.Content(page, "text/html"));
+
+app.MapPost("/publish", async (
+    HttpRequest request,
+    IHttpClientFactory httpClientFactory,
+    CancellationToken cancellationToken) =>
+{
+    var form = await request.ReadFormAsync(cancellationToken);
+    var payload = new
+    {
+        title = form["title"].ToString(),
+        content = form["content"].ToString(),
+        source = form["source"].ToString(),
+        scope = form["scope"].ToString()
+    };
+
+    var client = httpClientFactory.CreateClient("publisher");
+    using var response = await client.PostAsJsonAsync(
+        "api/publishing",
+        payload,
+        cancellationToken);
+
+    var body = await response.Content.ReadAsStringAsync(cancellationToken);
+    return Results.Content(
+        body,
+        "application/json",
+        statusCode: (int)response.StatusCode);
+});
+
+app.MapGet("/health", () => Results.Ok(new
+{
+    status = "ok",
+    instance = Environment.MachineName
+}));
+
+app.Run();
