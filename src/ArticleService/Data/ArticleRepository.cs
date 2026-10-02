@@ -80,6 +80,35 @@ public sealed class ArticleRepository(IArticleShardResolver shardResolver) : IAr
         return articles;
     }
 
+    public async Task<IReadOnlyList<Article>> GetRecentAsync(
+        string scope,
+        DateTime sinceUtc,
+        CancellationToken cancellationToken)
+    {
+        await using var connection = new NpgsqlConnection(shardResolver.GetConnectionString(scope));
+        await connection.OpenAsync(cancellationToken);
+
+        const string sql = """
+            SELECT id, title, content, source, scope, created_at_utc, updated_at_utc
+            FROM articles
+            WHERE created_at_utc >= @sinceUtc
+            ORDER BY created_at_utc DESC;
+            """;
+
+        await using var command = new NpgsqlCommand(sql, connection);
+        command.Parameters.AddWithValue("sinceUtc", sinceUtc);
+
+        var articles = new List<Article>();
+        await using var reader = await command.ExecuteReaderAsync(cancellationToken);
+
+        while (await reader.ReadAsync(cancellationToken))
+        {
+            articles.Add(Map(reader));
+        }
+
+        return articles;
+    }
+
     public async Task<Article?> UpdateAsync(
         string scope,
         Guid id,

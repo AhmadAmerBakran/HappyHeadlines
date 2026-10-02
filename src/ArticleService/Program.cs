@@ -1,6 +1,8 @@
+using ArticleService.Cache;
 using ArticleService.Data;
 using ArticleService.Messaging;
 using HappyHeadlines.Observability;
+using StackExchange.Redis;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -12,6 +14,16 @@ builder.Services.AddSwaggerGen();
 builder.Services.AddSingleton<IArticleShardResolver, ArticleShardResolver>();
 builder.Services.AddScoped<IArticleRepository, ArticleRepository>();
 builder.Services.AddHostedService<PublishedArticleConsumer>();
+
+var articleCacheConnection = builder.Configuration.GetConnectionString("ArticleCache")
+    ?? "article-cache:6379";
+var articleCacheOptions = ConfigurationOptions.Parse(articleCacheConnection);
+articleCacheOptions.AbortOnConnectFail = false;
+
+builder.Services.AddSingleton<IConnectionMultiplexer>(
+    _ => ConnectionMultiplexer.Connect(articleCacheOptions));
+builder.Services.AddSingleton<ArticleCache>();
+builder.Services.AddHostedService<ArticleCacheRefreshWorker>();
 
 var app = builder.Build();
 

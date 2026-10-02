@@ -8,6 +8,7 @@ public interface IArticleRepository
     Task<bool> StorePublishedAsync(Article article, CancellationToken cancellationToken);
     Task<Article?> GetByIdAsync(string scope, Guid id, CancellationToken cancellationToken);
     Task<IReadOnlyList<Article>> GetAllAsync(string scope, int limit, CancellationToken cancellationToken);
+    Task<IReadOnlyList<Article>> GetRecentAsync(string scope, DateTime sinceUtc, CancellationToken cancellationToken);
     Task<Article?> UpdateAsync(string scope, Guid id, string title, string content, string? source, CancellationToken cancellationToken);
     Task<bool> DeleteAsync(string scope, Guid id, CancellationToken cancellationToken);
 }

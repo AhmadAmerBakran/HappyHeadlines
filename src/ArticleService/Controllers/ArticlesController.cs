@@ -1,3 +1,4 @@
+using ArticleService.Cache;
 using ArticleService.Contracts;
 using ArticleService.Data;
 using ArticleService.Models;
@@ -7,7 +8,9 @@ namespace ArticleService.Controllers;
 
 [ApiController]
 [Route("api/articles")]
-public sealed class ArticlesController(IArticleRepository repository) : ControllerBase
+public sealed class ArticlesController(
+    IArticleRepository repository,
+    ArticleCache cache) : ControllerBase
 {
     [HttpPost]
     public async Task<ActionResult<Article>> Create(
@@ -33,6 +36,11 @@ public sealed class ArticlesController(IArticleRepository repository) : Controll
 
         await repository.CreateAsync(article, cancellationToken);
 
+        if (scope == "global")
+        {
+            await cache.InvalidateAsync();
+        }
+
         return CreatedAtAction(
             nameof(GetById),
             new { scope = article.Scope, id = article.Id },
@@ -48,6 +56,22 @@ public sealed class ArticlesController(IArticleRepository repository) : Controll
         if (!ArticleScopes.TryNormalize(scope, out var normalizedScope))
         {
             return InvalidScope(scope);
+        }
+
+        if (normalizedScope == "global")
+        {
+            var cachedArticle = await cache.GetByIdAsync(id);
+            if (cachedArticle is not null)
+            {
+                Response.Headers["X-Cache"] = "HIT";
+                return Ok(cachedArticle);
+            }
+
+            Response.Headers["X-Cache"] = "MISS";
+        }
+        else
+        {
+            Response.Headers["X-Cache"] = "BYPASS";
         }
 
         var article = await repository.GetByIdAsync(normalizedScope, id, cancellationToken);
@@ -66,6 +90,23 @@ public sealed class ArticlesController(IArticleRepository repository) : Controll
         }
 
         limit = Math.Clamp(limit, 1, 100);
+
+        if (normalizedScope == "global")
+        {
+            var cachedArticles = await cache.GetRecentAsync(limit);
+            if (cachedArticles is not null)
+            {
+                Response.Headers["X-Cache"] = "HIT";
+                return Ok(cachedArticles);
+            }
+
+            Response.Headers["X-Cache"] = "MISS";
+        }
+        else
+        {
+            Response.Headers["X-Cache"] = "BYPASS";
+        }
+
         var articles = await repository.GetAllAsync(normalizedScope, limit, cancellationToken);
         return Ok(articles);
     }
@@ -90,6 +131,11 @@ public sealed class ArticlesController(IArticleRepository repository) : Controll
             string.IsNullOrWhiteSpace(request.Source) ? null : request.Source.Trim(),
             cancellationToken);
 
+        if (article is not null && normalizedScope == "global")
+        {
+            await cache.InvalidateAsync(id);
+        }
+
         return article is null ? NotFound() : Ok(article);
     }
 
@@ -105,6 +151,12 @@ public sealed class ArticlesController(IArticleRepository repository) : Controll
         }
 
         var deleted = await repository.DeleteAsync(normalizedScope, id, cancellationToken);
+
+        if (deleted && normalizedScope == "global")
+        {
+            await cache.InvalidateAsync(id);
+        }
+
         return deleted ? NoContent() : NotFound();
     }
 
