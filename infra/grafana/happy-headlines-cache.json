@@ -42,7 +42,7 @@
       "targets": [
         {
           "editorMode": "code",
-          "expr": "100 * sum(rate(happyheadlines_cache_requests_total{cache=\"article\",result=\"hit\"}[$__rate_interval])) / clamp_min(sum(rate(happyheadlines_cache_requests_total{cache=\"article\"}[$__rate_interval])), 0.000001)",
+          "expr": "100 * sum(increase(happyheadlines_cache_requests_total{cache=\"article\",result=\"hit\"}[$__range])) / clamp_min(sum(increase(happyheadlines_cache_requests_total{cache=\"article\"}[$__range])), 1)",
           "range": true,
           "refId": "A"
         }
@@ -85,7 +85,7 @@
       "targets": [
         {
           "editorMode": "code",
-          "expr": "100 * sum(rate(happyheadlines_cache_requests_total{cache=\"comment\",result=\"hit\"}[$__rate_interval])) / clamp_min(sum(rate(happyheadlines_cache_requests_total{cache=\"comment\"}[$__rate_interval])), 0.000001)",
+          "expr": "100 * sum(increase(happyheadlines_cache_requests_total{cache=\"comment\",result=\"hit\"}[$__range])) / clamp_min(sum(increase(happyheadlines_cache_requests_total{cache=\"comment\"}[$__range])), 1)",
           "range": true,
           "refId": "A"
         }
