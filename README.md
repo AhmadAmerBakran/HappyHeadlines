@@ -2,39 +2,33 @@
 
 Semester project for Development of Large Systems (E2026).
 
-## Week 35 - architecture
+## Week 35: Architecture
 
-Started with the C4 system context and container diagrams. The diagrams are kept in `docs` because the architecture changes during the semester.
+The project started with the C4 system context and container diagrams. The diagrams are kept in `docs` because the architecture changes during the semester.
 
-## Week 36 - scalability
+## Week 36: Scalability
 
-Added `ArticleService`.
+`ArticleService` was added with three replicas, geographic PostgreSQL shards and Nginx as the entry point.
 
-- 3 service replicas for X-axis scaling
-- article data split into geographic PostgreSQL shards for Z-axis scaling
-- Nginx used as the entry point
+## Week 37: Fault isolation
 
-## Week 37 - fault isolation
+Comments and profanity filtering were separated into `CommentService` and `ProfanityService`. Each service owns its database, and the comment flow uses a circuit breaker when profanity filtering is unavailable.
 
-Added comments and profanity filtering.
+## Week 38: Logging and tracing
 
-- `CommentService` has its own database
-- `ProfanityService` has its own database
-- the services only share the moderation network
-- CommentService uses a Polly circuit breaker
-- comments stay pending if moderation is temporarily unavailable
+`DraftService` and `DraftDatabase` were added. Shared logging and tracing live in `src/Shared/Observability` and telemetry is sent to the local Grafana stack.
 
-## Week 38 - logging and tracing
+## Week 39: Distributed tracing
 
-Added `DraftService` and `DraftDatabase`.
+The publishing flow uses `WebApp`, `PublisherService`, RabbitMQ and `NewsletterService`. Trace context is copied into RabbitMQ message headers and restored by the consumers so the trace continues across the queue.
 
-Logging and tracing are shared through `src/Shared/Observability`. Telemetry is sent to the local Grafana observability stack.
+## Week 40: Caching
 
-## Week 39 - distributed tracing
+Global articles are cached in Redis between `ArticleService` and the global article database. A background process refreshes the cache every minute with articles from the latest 14 days. Cache entries expire after three minutes so the service falls back to PostgreSQL if the refresh process stops. Changes to global articles invalidate the affected cache data and the next scheduled refresh fills it again.
 
-Added a publishing flow with `WebApp`, `PublisherService`, RabbitMQ and `NewsletterService`. Published articles are sent to both `ArticleService` and `NewsletterService`.
+Published comments are cached in a separate Redis instance. A missing article entry is loaded from PostgreSQL and stored in the cache. The cache keeps comments for the 30 most recently accessed articles. Access time is tracked in Redis and the least recently used article is removed when the limit is exceeded.
 
-Trace context is copied into the RabbitMQ message headers and restored by each consumer, so the trace continues when a request crosses the queue boundary. The Grafana overview from the learning activity is kept for incident investigation.
+Both services record cache hits and misses through the existing OpenTelemetry setup. Grafana provisions a dashboard called `Happy Headlines cache` with the hit ratio and lookup rate for both cache layers. Cached GET requests also return an `X-Cache` response header with `HIT`, `MISS` or `BYPASS` so the behaviour can be shown directly during the presentation.
 
 ### Local endpoints
 
@@ -49,24 +43,31 @@ Grafana             http://localhost:3000
 RabbitMQ            http://localhost:15672
 ```
 
-### Build and run
+### Build and run week 40
 
 ```bash
-docker build -t happyheadlines/article-service:week39 -f src/ArticleService/Dockerfile .
-docker build -t happyheadlines/comment-service:week39 -f src/CommentService/Dockerfile .
-docker build -t happyheadlines/profanity-service:week39 -f src/ProfanityService/Dockerfile .
-docker build -t happyheadlines/draft-service:week39 -f src/DraftService/Dockerfile .
-docker build -t happyheadlines/publisher-service:week39 -f src/PublisherService/Dockerfile .
-docker build -t happyheadlines/newsletter-service:week39 -f src/NewsletterService/Dockerfile .
-docker build -t happyheadlines/webapp:week39 -f src/WebApp/Dockerfile .
+docker build -t happyheadlines/article-service:week40 -f src/ArticleService/Dockerfile .
+docker build -t happyheadlines/comment-service:week40 -f src/CommentService/Dockerfile .
 
 docker swarm init
-docker stack deploy -c docker-stack.yml -c docker-stack.week39.yml happyheadlines
+docker stack deploy -c docker-stack.yml -c docker-stack.week40.yml happyheadlines
 ```
 
-If Swarm is already enabled, skip `docker swarm init`.
+If Swarm is already enabled, `docker swarm init` is not needed.
+
+### Cache check
+
+Use `curl.exe -i` when calling the two cached GET endpoints. The response header shows whether the request was served by Redis or PostgreSQL.
+
+```text
+GET http://localhost:8080/api/articles/global?limit=1
+GET http://localhost:8081/api/comments/article/{articleId}
+```
+
+For the comment endpoint, the first request for an article should be a miss. Repeating the same request should be a hit. Article cache content is refreshed in the background, so a recent global article becomes a hit after the next refresh.
 
 ## Contributors
 
-- Ahmad Amer Bakran
-- Mahmoud (`Hozaneybo`)
+Ahmad Amer Bakran
+
+Mahmoud, GitHub username `Hozaneybo`

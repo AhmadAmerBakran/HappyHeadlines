@@ -19,6 +19,21 @@ public static class HappyHeadlinesDiagnostics
         "happyheadlines_http_request_duration_ms",
         description: "HTTP request duration in milliseconds");
 
+    public static readonly Counter<long> CacheRequests = Meter.CreateCounter<long>(
+        "happyheadlines_cache_requests",
+        description: "Cache lookups grouped by cache and result");
+
+    public static void RecordCacheRequest(string cacheName, bool hit)
+    {
+        var tags = new TagList
+        {
+            { "cache", cacheName },
+            { "result", hit ? "hit" : "miss" }
+        };
+
+        CacheRequests.Add(1, tags);
+    }
+
     public static Activity? StartActivity(string name, ActivityKind kind = ActivityKind.Internal)
         => ActivitySource.StartActivity(name, kind);
 

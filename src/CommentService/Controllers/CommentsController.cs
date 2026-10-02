@@ -1,3 +1,4 @@
+using CommentService.Cache;
 using CommentService.Contracts;
 using CommentService.Data;
 using CommentService.Models;
@@ -10,14 +11,24 @@ namespace CommentService.Controllers;
 [Route("api/comments")]
 public sealed class CommentsController(
     ICommentRepository repository,
-    IProfanityClient profanityClient) : ControllerBase
+    IProfanityClient profanityClient,
+    CommentCache cache) : ControllerBase
 {
     [HttpGet("article/{articleId:guid}")]
     public async Task<ActionResult<IReadOnlyList<Comment>>> GetByArticle(
         Guid articleId,
         CancellationToken cancellationToken)
     {
+        var cachedComments = await cache.GetAsync(articleId);
+        if (cachedComments is not null)
+        {
+            Response.Headers["X-Cache"] = "HIT";
+            return Ok(cachedComments);
+        }
+
+        Response.Headers["X-Cache"] = "MISS";
         var comments = await repository.GetPublishedByArticleAsync(articleId, cancellationToken);
+        await cache.SetAsync(articleId, comments);
         return Ok(comments);
     }
 
@@ -71,6 +82,8 @@ public sealed class CommentsController(
             });
         }
 
+        await cache.InvalidateAsync(comment.ArticleId);
+
         return CreatedAtAction(
             nameof(GetByArticle),
             new { articleId = comment.ArticleId },
@@ -108,6 +121,8 @@ public sealed class CommentsController(
             comment.Id,
             moderationResult.FilteredText,
             cancellationToken);
+
+        await cache.InvalidateAsync(comment.ArticleId);
 
         return Ok(new Comment
         {

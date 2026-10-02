@@ -1,8 +1,10 @@
+using CommentService.Cache;
 using CommentService.Data;
 using CommentService.Services;
 using HappyHeadlines.Observability;
 using Polly;
 using Polly.CircuitBreaker;
+using StackExchange.Redis;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -12,6 +14,15 @@ builder.Services.AddControllers();
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
 builder.Services.AddScoped<ICommentRepository, CommentRepository>();
+
+var commentCacheConnection = builder.Configuration.GetConnectionString("CommentCache")
+    ?? "comment-cache:6379";
+var commentCacheOptions = ConfigurationOptions.Parse(commentCacheConnection);
+commentCacheOptions.AbortOnConnectFail = false;
+
+builder.Services.AddSingleton<IConnectionMultiplexer>(
+    _ => ConnectionMultiplexer.Connect(commentCacheOptions));
+builder.Services.AddSingleton<CommentCache>();
 
 var profanityServiceUrl = builder.Configuration["Services:ProfanityService"]
     ?? throw new InvalidOperationException("Services:ProfanityService is missing.");
