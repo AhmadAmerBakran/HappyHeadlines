@@ -1,10 +1,13 @@
-name: Build
+name: Build and publish
 
 on:
   push:
-    branches: [master]
+    branches: [master, main]
   pull_request:
-    branches: [master]
+    branches: [master, main]
+
+permissions:
+  contents: read
 
 jobs:
   build:
@@ -23,3 +26,61 @@ jobs:
 
       - name: Build
         run: dotnet build HappyHeadlines.sln --configuration Release --no-restore
+
+  publish:
+    name: Publish ${{ matrix.image }}
+    if: github.event_name == 'push'
+    needs: build
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      packages: write
+
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - service: ArticleService
+            image: article-service
+          - service: CommentService
+            image: comment-service
+          - service: DraftService
+            image: draft-service
+          - service: ProfanityService
+            image: profanity-service
+          - service: PublisherService
+            image: publisher-service
+          - service: NewsletterService
+            image: newsletter-service
+          - service: WebApp
+            image: web-app
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v3
+
+      - name: Log in to GitHub Container Registry
+        uses: docker/login-action@v3
+        with:
+          registry: ghcr.io
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Set image name
+        id: image
+        run: echo "name=ghcr.io/${GITHUB_REPOSITORY,,}/${{ matrix.image }}" >> "$GITHUB_OUTPUT"
+
+      - name: Build and publish
+        uses: docker/build-push-action@v6
+        with:
+          context: .
+          file: ./src/${{ matrix.service }}/Dockerfile
+          push: true
+          tags: |
+            ${{ steps.image.outputs.name }}:1.0.${{ github.run_number }}
+            ${{ steps.image.outputs.name }}:sha-${{ github.sha }}
+          labels: |
+            org.opencontainers.image.source=https://github.com/${{ github.repository }}
+            org.opencontainers.image.revision=${{ github.sha }}
