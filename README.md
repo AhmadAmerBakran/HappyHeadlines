@@ -66,6 +66,18 @@ GET http://localhost:8081/api/comments/article/{articleId}
 
 For the comment endpoint, the first request for an article should be a miss. Repeating the same request should be a hit. Article cache content is refreshed in the background, so a recent global article becomes a hit after the next refresh.
 
+## Week 43: CI/CD
+
+GitHub Actions builds the .NET solution on pull requests and pushes to `master` or `main`. After a successful push, it builds and publishes Docker images for all seven application services to GitHub Container Registry.
+
+Images have a version tag (`1.0.<run-number>`) and a commit tag (`sha-<commit-sha>`). For example:
+
+```bash
+docker pull ghcr.io/ahmadamerbakran/happyheadlines/article-service:1.0.25
+```
+
+Replace `25` with the actual run number shown in GitHub Actions. The workflow publishes images but does not deploy the stack.
+
 ## Contributors
 
 Ahmad Amer Bakran
