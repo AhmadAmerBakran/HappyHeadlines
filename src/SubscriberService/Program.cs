@@ -82,7 +82,8 @@ app.MapGet("/api/subscribers", async (
     if (!rollout.Enabled || rollout.Percentage == 0)
         return Results.StatusCode(StatusCodes.Status503ServiceUnavailable);
 
-    return Results.Ok(await repository.ListEmailsAsync(ct));
+    var emails = await repository.ListEmailsAsync(ct);
+    return Results.Ok(emails.Where(rollout.Allows).ToArray());
 });
 
 await InitialiseDatabaseAsync(app.Services, app.Lifetime.ApplicationStopping);
