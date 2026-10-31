@@ -57,6 +57,7 @@ services:
         condition: on-failure
 
   newsletter-service:
+    image: happyheadlines/newsletter-service:week44
     environment:
       Services__SubscriberService: http://subscriber-service:8080/
       Subscriber__InternalKey: ${SUBSCRIBER_INTERNAL_KEY}

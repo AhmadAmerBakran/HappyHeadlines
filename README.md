@@ -84,7 +84,12 @@ The subscriber API, PostgreSQL database and RabbitMQ queue have separate network
 
 The release toggle is stored in PostgreSQL and starts disabled. An admin can enable it for 100% of readers or gradually release it to a fixed percentage without redeploying. The same email always gets the same rollout decision.
 
-Run the stack with `docker-stack.yml`, `docker-stack.week40.yml` and `docker-stack.week44.yml`. Export `SUBSCRIBER_ADMIN_KEY`, `SUBSCRIBER_INTERNAL_KEY` and `NEWSLETTER_ADMIN_KEY` in your shell first. Build `happyheadlines/subscriber-service:week44` before deployment.
+Run the stack with `docker-stack.yml`, `docker-stack.week40.yml` and `docker-stack.week44.yml`. Export `SUBSCRIBER_ADMIN_KEY`, `SUBSCRIBER_INTERNAL_KEY` and `NEWSLETTER_ADMIN_KEY` in your shell first. Build both week 44 images before deployment:
+
+```bash
+docker build -t happyheadlines/subscriber-service:week44 -f src/SubscriberService/Dockerfile .
+docker build -t happyheadlines/newsletter-service:week44 -f src/NewsletterService/Dockerfile .
+```
 
 SubscriberService: `http://localhost:8086`. To change the rollout, PUT `{"enabled":true,"percentage":100}` to `/api/subscribers/rollout` with header `X-Subscriber-Admin-Key`. POST `{"email":"reader@example.com"}` to `/api/subscribers` to sign up. DELETE `/api/subscribers/reader%40example.com` to unsubscribe.
 
