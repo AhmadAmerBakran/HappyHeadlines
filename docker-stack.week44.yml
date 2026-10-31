@@ -1,0 +1,100 @@
+version: "3.8"
+
+services:
+  subscriber-service:
+    image: happyheadlines/subscriber-service:week44
+    ports:
+      - target: 8080
+        published: 8086
+        protocol: tcp
+        mode: ingress
+    environment:
+      ASPNETCORE_URLS: http://+:8080
+      OTEL_EXPORTER_OTLP_ENDPOINT: http://observability:4317
+      ConnectionStrings__Subscribers: Host=subscriber-db;Port=5432;Database=happy_headlines_subscribers;Username=postgres;Password=happyheadlines_dev
+      SubscriberRabbitMq__HostName: subscriber-queue
+      SubscriberRabbitMq__UserName: application
+      SubscriberRabbitMq__Password: happyheadlines_dev
+      Subscriber__AdminKey: ${SUBSCRIBER_ADMIN_KEY}
+      Subscriber__InternalKey: ${SUBSCRIBER_INTERNAL_KEY}
+    networks:
+      - subscriber-api
+      - subscriber-data
+      - subscriber-messaging
+      - observability
+    deploy:
+      replicas: 1
+      restart_policy:
+        condition: on-failure
+
+  subscriber-db:
+    image: postgres:16-alpine
+    environment:
+      POSTGRES_DB: happy_headlines_subscribers
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: happyheadlines_dev
+    volumes:
+      - subscriber-data-volume:/var/lib/postgresql/data
+    networks:
+      - subscriber-data
+    deploy:
+      replicas: 1
+      restart_policy:
+        condition: on-failure
+
+  subscriber-queue:
+    image: rabbitmq:3.13-management-alpine
+    environment:
+      RABBITMQ_DEFAULT_USER: application
+      RABBITMQ_DEFAULT_PASS: happyheadlines_dev
+    volumes:
+      - subscriber-queue-volume:/var/lib/rabbitmq
+    networks:
+      - subscriber-messaging
+    deploy:
+      replicas: 1
+      restart_policy:
+        condition: on-failure
+
+  newsletter-service:
+    environment:
+      Services__SubscriberService: http://subscriber-service:8080/
+      Subscriber__InternalKey: ${SUBSCRIBER_INTERNAL_KEY}
+      Newsletter__AdminKey: ${NEWSLETTER_ADMIN_KEY}
+      SubscriberRabbitMq__HostName: subscriber-queue
+      SubscriberRabbitMq__UserName: application
+      SubscriberRabbitMq__Password: happyheadlines_dev
+      Smtp__Host: mailpit
+      Smtp__Port: 1025
+      Smtp__From: newsletter@happyheadlines.local
+    networks:
+      - messaging
+      - subscriber-api
+      - subscriber-messaging
+      - observability
+
+  mailpit:
+    image: axllent/mailpit:latest
+    ports:
+      - target: 8025
+        published: 8025
+        protocol: tcp
+        mode: ingress
+    networks:
+      - subscriber-messaging
+    deploy:
+      replicas: 1
+      restart_policy:
+        condition: on-failure
+
+networks:
+  subscriber-api:
+    driver: overlay
+  subscriber-data:
+    driver: overlay
+  subscriber-messaging:
+    driver: overlay
+
+volumes:
+  subscriber-data-volume:
+  subscriber-queue-volume:
