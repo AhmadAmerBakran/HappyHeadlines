@@ -78,6 +78,18 @@ docker pull ghcr.io/ahmadamerbakran/happyheadlines/article-service:1.0.25
 
 Replace `25` with the actual run number shown in GitHub Actions. The workflow publishes images but does not deploy the stack.
 
+## Week 44: Subscriber recovery
+
+The subscriber API, PostgreSQL database and RabbitMQ queue have separate networks. NewsletterService reads subscribers through an internal API and consumes welcome messages from the subscriber queue. If the subscriber stack is down, the existing newsletter endpoints remain available.
+
+The release toggle is stored in PostgreSQL and starts disabled. An admin can enable it for 100% of readers or gradually release it to a fixed percentage without redeploying. The same email always gets the same rollout decision.
+
+Run the stack with `docker-stack.yml`, `docker-stack.week40.yml` and `docker-stack.week44.yml`. Export `SUBSCRIBER_ADMIN_KEY`, `SUBSCRIBER_INTERNAL_KEY` and `NEWSLETTER_ADMIN_KEY` in your shell first. Build `happyheadlines/subscriber-service:week44` before deployment.
+
+SubscriberService: `http://localhost:8086`. To change the rollout, PUT `{"enabled":true,"percentage":100}` to `/api/subscribers/rollout` with header `X-Subscriber-Admin-Key`. POST `{"email":"reader@example.com"}` to `/api/subscribers` to sign up. DELETE `/api/subscribers/reader%40example.com` to unsubscribe.
+
+Mailpit receives welcome emails at `http://localhost:8025`. NewsletterService sends a newsletter through POST `/api/newsletters/send` with a subject and body and header `X-Newsletter-Admin-Key`. Failed welcome messages are routed to the subscriber failed queue.
+
 ## Contributors
 
 Ahmad Amer Bakran
