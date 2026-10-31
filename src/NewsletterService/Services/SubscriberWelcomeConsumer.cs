@@ -1,4 +1,3 @@
-using System.Net;
 using System.Net.Mail;
 using System.Text.Json;
 using RabbitMQ.Client;
@@ -10,6 +9,7 @@ public sealed record SubscriberCreated(Guid Id, string Email, DateTime Subscribe
 
 public sealed class SubscriberWelcomeConsumer(
     IConfiguration configuration,
+    NewsletterMailer mailer,
     ILogger<SubscriberWelcomeConsumer> logger) : BackgroundService
 {
     private const string Queue = "happyheadlines.subscribers.created";
@@ -79,7 +79,8 @@ public sealed class SubscriberWelcomeConsumer(
             if (subscriber.Id == Guid.Empty || !MailAddress.TryCreate(subscriber.Email, out _))
                 throw new JsonException("Invalid subscriber event.");
 
-            await SendWelcomeAsync(subscriber.Email);
+            await mailer.SendAsync(subscriber.Email, "Welcome to Happy Headlines",
+                "Thanks for subscribing to Happy Headlines.");
             _channel!.BasicAck(delivery.DeliveryTag, false);
             logger.LogInformation("Welcome email sent to {Email}.", subscriber.Email);
         }
@@ -93,32 +94,6 @@ public sealed class SubscriberWelcomeConsumer(
             logger.LogError(ex, "Welcome email failed; message moved to the failed queue.");
             _channel!.BasicNack(delivery.DeliveryTag, false, false);
         }
-    }
-
-    private async Task SendWelcomeAsync(string email)
-    {
-        var host = configuration["Smtp:Host"]
-            ?? throw new InvalidOperationException("Smtp:Host is missing.");
-
-        using var client = new SmtpClient(host)
-        {
-            Port = int.TryParse(configuration["Smtp:Port"], out var port) ? port : 25,
-            EnableSsl = bool.TryParse(configuration["Smtp:UseSsl"], out var ssl) && ssl,
-            DeliveryMethod = SmtpDeliveryMethod.Network
-        };
-
-        var user = configuration["Smtp:UserName"];
-        if (!string.IsNullOrWhiteSpace(user))
-        {
-            client.Credentials = new NetworkCredential(user, configuration["Smtp:Password"]);
-        }
-
-        using var message = new MailMessage(
-            configuration["Smtp:From"] ?? "newsletter@happyheadlines.local",
-            email,
-            "Welcome to Happy Headlines",
-            "Thanks for subscribing to Happy Headlines.");
-        await client.SendMailAsync(message);
     }
 
     private void CloseConnection()
