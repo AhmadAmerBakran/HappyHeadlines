@@ -111,6 +111,25 @@ public sealed class ArticlesController(
         return Ok(articles);
     }
 
+    [HttpGet("{scope}/headlines")]
+    public async Task<ActionResult<IReadOnlyList<ArticleHeadline>>> GetHeadlines(
+        string scope,
+        [FromQuery] int limit = 20,
+        CancellationToken cancellationToken = default)
+    {
+        if (!ArticleScopes.TryNormalize(scope, out var normalizedScope))
+        {
+            return InvalidScope(scope);
+        }
+
+        var headlines = await repository.GetHeadlinesAsync(
+            normalizedScope,
+            Math.Clamp(limit, 1, 100),
+            cancellationToken);
+
+        return Ok(headlines);
+    }
+
     [HttpPut("{scope}/{id:guid}")]
     public async Task<ActionResult<Article>> Update(
         string scope,
