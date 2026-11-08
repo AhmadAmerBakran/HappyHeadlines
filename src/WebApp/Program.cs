@@ -1,4 +1,5 @@
 using System.IO.Compression;
+using System.Net;
 using System.Net.Http.Json;
 using Microsoft.AspNetCore.ResponseCompression;
 using HappyHeadlines.Observability;
