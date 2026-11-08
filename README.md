@@ -95,6 +95,12 @@ SubscriberService: `http://localhost:8086`. To change the rollout, PUT `{"enable
 
 Mailpit receives welcome emails at `http://localhost:8025`. NewsletterService sends a newsletter through POST `/api/newsletters/send` with a subject and body and header `X-Newsletter-Admin-Key`. Failed welcome messages are routed to the subscriber failed queue.
 
+## Week 45: Sustainability
+
+The article API now offers smaller headline responses and compresses HTTP responses when the client supports it. The WebApp headline page loads article text only when a reader opens it. Successful health checks no longer write request logs; errors and performance metrics are unchanged.
+
+See `docs/week45-sustainability.md` for the code before and after each change.
+
 ## Contributors
 
 Ahmad Amer Bakran
