@@ -91,7 +91,15 @@ Successful `/health` requests no longer create information log entries. Failed r
 
 ## Checking the changes
 
-Start the usual Docker stack and open `http://localhost:8085/headlines`. The Network tab should show the headline list request first and the full article request only after clicking a title.
+Build the ArticleService and WebApp images and deploy the week 45 overlay:
+
+~~~bash
+docker build -t happyheadlines/article-service:week45 -f src/ArticleService/Dockerfile .
+docker build -t happyheadlines/webapp:week45 -f src/WebApp/Dockerfile .
+docker stack deploy -c docker-stack.yml -c docker-stack.week40.yml -c docker-stack.week44.yml -c docker-stack.week45.yml happyheadlines
+~~~
+
+The overlay connects WebApp to ArticleService on a separate internal network. Open `http://localhost:8085/headlines`. The Network tab should show the headline list request first and the full article request only after clicking a title.
 
 For compression, use `curl.exe --compressed -i -H "Accept-Encoding: gzip" http://localhost:8080/api/articles/global/headlines?limit=20` and check the `Content-Encoding` response header.
 

@@ -29,7 +29,7 @@ jobs:
       - name: Test
         run: dotnet test HappyHeadlines.sln --configuration Release --no-build
       - name: Validate deployment configuration
-        run: docker compose -f docker-stack.yml -f docker-stack.week40.yml -f docker-stack.week44.yml config --quiet
+        run: docker compose -f docker-stack.yml -f docker-stack.week40.yml -f docker-stack.week44.yml -f docker-stack.week45.yml config --quiet
 
   publish:
     name: Publish ${{ matrix.image }}

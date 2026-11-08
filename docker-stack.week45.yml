@@ -1,0 +1,25 @@
+version: "3.8"
+
+services:
+  article-service:
+    image: happyheadlines/article-service:week45
+    networks:
+      - frontend
+      - backend
+      - observability
+      - messaging
+      - article-cache-data
+      - headlines-read
+
+  webapp:
+    image: happyheadlines/webapp:week45
+    environment:
+      Services__ArticleService: http://article-service:8080/
+    networks:
+      - publishing
+      - observability
+      - headlines-read
+
+networks:
+  headlines-read:
+    driver: overlay

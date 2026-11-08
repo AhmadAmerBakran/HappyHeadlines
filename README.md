@@ -99,6 +99,14 @@ Mailpit receives welcome emails at `http://localhost:8025`. NewsletterService se
 
 The article API now offers smaller headline responses and compresses HTTP responses when the client supports it. The WebApp headline page loads article text only when a reader opens it. Successful health checks no longer write request logs; errors and performance metrics are unchanged.
 
+The week 45 stack uses two new images and an isolated network for the WebApp headline reader. Build and deploy them after the week 40 and week 44 stacks:
+
+```bash
+docker build -t happyheadlines/article-service:week45 -f src/ArticleService/Dockerfile .
+docker build -t happyheadlines/webapp:week45 -f src/WebApp/Dockerfile .
+docker stack deploy -c docker-stack.yml -c docker-stack.week40.yml -c docker-stack.week44.yml -c docker-stack.week45.yml happyheadlines
+```
+
 See `docs/week45-sustainability.md` for the code before and after each change.
 
 ## Contributors
