@@ -1,3 +1,4 @@
+using ArticleService.Contracts;
 using ArticleService.Models;
 using Npgsql;
 
@@ -78,6 +79,40 @@ public sealed class ArticleRepository(IArticleShardResolver shardResolver) : IAr
         }
 
         return articles;
+    }
+
+    public async Task<IReadOnlyList<ArticleHeadline>> GetHeadlinesAsync(
+        string scope,
+        int limit,
+        CancellationToken cancellationToken)
+    {
+        await using var connection = new NpgsqlConnection(shardResolver.GetConnectionString(scope));
+        await connection.OpenAsync(cancellationToken);
+
+        const string sql = """
+            SELECT id, title, source, scope, created_at_utc
+            FROM articles
+            ORDER BY created_at_utc DESC
+            LIMIT @limit;
+            """;
+
+        await using var command = new NpgsqlCommand(sql, connection);
+        command.Parameters.AddWithValue("limit", limit);
+
+        var headlines = new List<ArticleHeadline>();
+        await using var reader = await command.ExecuteReaderAsync(cancellationToken);
+
+        while (await reader.ReadAsync(cancellationToken))
+        {
+            headlines.Add(new ArticleHeadline(
+                reader.GetGuid(0),
+                reader.GetString(1),
+                reader.IsDBNull(2) ? null : reader.GetString(2),
+                reader.GetString(3),
+                reader.GetDateTime(4)));
+        }
+
+        return headlines;
     }
 
     public async Task<IReadOnlyList<Article>> GetRecentAsync(

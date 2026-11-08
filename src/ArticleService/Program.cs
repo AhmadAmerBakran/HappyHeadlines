@@ -1,4 +1,6 @@
+using System.IO.Compression;
 using ArticleService.Cache;
+using Microsoft.AspNetCore.ResponseCompression;
 using ArticleService.Data;
 using ArticleService.Messaging;
 using HappyHeadlines.Observability;
@@ -9,6 +11,14 @@ var builder = WebApplication.CreateBuilder(args);
 builder.AddHappyHeadlinesObservability("ArticleService");
 
 builder.Services.AddControllers();
+builder.Services.AddResponseCompression(options =>
+{
+    options.EnableForHttps = true;
+    options.Providers.Add<BrotliCompressionProvider>();
+    options.Providers.Add<GzipCompressionProvider>();
+});
+builder.Services.Configure<BrotliCompressionProviderOptions>(options => options.Level = CompressionLevel.Fastest);
+builder.Services.Configure<GzipCompressionProviderOptions>(options => options.Level = CompressionLevel.Fastest);
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
 builder.Services.AddSingleton<IArticleShardResolver, ArticleShardResolver>();
@@ -27,6 +37,7 @@ builder.Services.AddHostedService<ArticleCacheRefreshWorker>();
 
 var app = builder.Build();
 
+app.UseResponseCompression();
 app.UseSwagger();
 app.UseSwaggerUI();
 app.UseHappyHeadlinesRequestLogging();

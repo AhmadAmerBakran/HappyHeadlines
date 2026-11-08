@@ -89,12 +89,16 @@ public static class ObservabilityExtensions
                 await next();
                 statusCode = context.Response.StatusCode;
 
-                logger.LogInformation(
-                    "HTTP {Method} {Path} completed with {StatusCode} in {ElapsedMilliseconds} ms",
-                    context.Request.Method,
-                    context.Request.Path.Value,
-                    statusCode,
-                    stopwatch.ElapsedMilliseconds);
+                if (statusCode >= 400
+                    || !string.Equals(context.Request.Path.Value, "/health", StringComparison.OrdinalIgnoreCase))
+                {
+                    logger.LogInformation(
+                        "HTTP {Method} {Path} completed with {StatusCode} in {ElapsedMilliseconds} ms",
+                        context.Request.Method,
+                        context.Request.Path.Value,
+                        statusCode,
+                        stopwatch.ElapsedMilliseconds);
+                }
             }
             catch (Exception ex)
             {
