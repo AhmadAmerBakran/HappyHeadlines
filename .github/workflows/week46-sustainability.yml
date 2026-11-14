@@ -5,7 +5,7 @@ on:
     branches: [week46-compulsory]
     paths:
       - .github/workflows/week46-sustainability.yml
-      - tools/week46-sustainability/**
+      - tools/week46-sustainability/render_evidence.py
       - docs/week45-sustainability.md
       - src/ArticleService/Data/ArticleRepository.cs
       - src/WebApp/Program.cs
@@ -55,5 +55,9 @@ jobs:
           git config user.name "github-actions[bot]"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
           git add docs/week46-sustainability/
-          git commit -m "Add sustainability improvement screenshots"
-          git push origin HEAD:week46-compulsory
+          if ! git diff --cached --quiet; then
+            git commit -m "Add sustainability improvement screenshots"
+            git push origin HEAD:week46-compulsory
+          else
+            echo "Sustainability source screenshots are unchanged."
+          fi
