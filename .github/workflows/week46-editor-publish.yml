@@ -1,0 +1,51 @@
+name: Save Week 46 editor screenshots
+
+on:
+  push:
+    branches: [week46-compulsory]
+    paths:
+      - .github/workflows/week46-editor-publish.yml
+
+permissions:
+  contents: write
+  actions: read
+
+jobs:
+  save:
+    runs-on: ubuntu-24.04
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Download verified VS Code screenshots
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          mkdir -p docs/week46-sustainability-editor
+          gh run download 43610371973 --repo "${{ github.repository }}" --name happyheadlines-week46-editor --dir docs/week46-sustainability-editor
+
+      - name: Verify screenshot files
+        run: |
+          python3 - <<'PY'
+          import struct
+          from pathlib import Path
+          directory = Path('docs/week46-sustainability-editor')
+          images = sorted(directory.glob('*.png'))
+          assert len(images) == 3, images
+          for image in images:
+              data = image.read_bytes()
+              assert data[:8] == bytes.fromhex('89504e470d0a1a0a'), image
+              assert struct.unpack('>II', data[16:24]) == (1600, 900), image
+              assert len(data) < 1_000_000, image
+              print(f'{image}: {len(data)} bytes')
+          PY
+
+      - name: Store screenshots on week 46 branch
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add docs/week46-sustainability-editor
+          if ! git diff --cached --quiet; then
+            git commit -m "Save real VS Code screenshots for sustainability"
+            git pull --rebase origin week46-compulsory
+            git push origin HEAD:week46-compulsory
+          fi
