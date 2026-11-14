@@ -72,13 +72,13 @@ public sealed class SubscriberFeatureTests
         {
             Assert.IsType<OkObjectResult>(result);
             Assert.Equal(
-                ["/api/subscribers/rollout/status", "/api/subscribers"],
+                new[] { "/api/subscribers/rollout/status", "/api/subscribers" },
                 requests);
         }
         else
         {
             Assert.IsType<NotFoundObjectResult>(result);
-            Assert.Equal(["/api/subscribers/rollout/status"], requests);
+            Assert.Equal(new[] { "/api/subscribers/rollout/status" }, requests);
         }
     }
 
