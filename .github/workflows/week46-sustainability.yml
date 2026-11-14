@@ -1,0 +1,59 @@
+name: Week 46 sustainability evidence
+
+on:
+  push:
+    branches: [week46-compulsory]
+    paths:
+      - .github/workflows/week46-sustainability.yml
+      - tools/week46-sustainability/**
+      - docs/week45-sustainability.md
+      - src/ArticleService/Data/ArticleRepository.cs
+      - src/WebApp/Program.cs
+      - src/Shared/Observability/ObservabilityExtensions.cs
+
+permissions:
+  contents: write
+
+jobs:
+  capture:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 12
+
+    steps:
+      - name: Check out project
+        uses: actions/checkout@v4
+
+      - name: Install image library
+        run: python3 -m pip install --user --break-system-packages Pillow==11.3.0
+
+      - name: Verify source and prepare screenshots
+        run: python3 tools/week46-sustainability/render_evidence.py
+
+      - name: Check image sizes
+        run: |
+          python3 - <<'PY'
+          from pathlib import Path
+          from PIL import Image
+          images = list(Path("docs/week46-sustainability").glob("*.png"))
+          assert len(images) == 3, f"Expected three images, found {len(images)}"
+          for path in images:
+              with Image.open(path) as image:
+                  image.verify()
+              assert path.stat().st_size <= 1000000, f"{path} exceeds 1 MB"
+              print(path, path.stat().st_size, "bytes")
+          PY
+
+      - name: Upload submission files
+        uses: actions/upload-artifact@v4
+        with:
+          name: sustainability-week46
+          path: docs/week46-sustainability/
+          retention-days: 14
+
+      - name: Save screenshots on week 46 branch
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add docs/week46-sustainability/
+          git commit -m "Add sustainability improvement screenshots"
+          git push origin HEAD:week46-compulsory
