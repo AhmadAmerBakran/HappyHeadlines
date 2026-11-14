@@ -203,7 +203,7 @@ const metricsMarkdown = [
   '',
   'Live service telemetry captured during the Week 46 verification run.',
   'OpenTelemetry collected the measurements from the running Happy Headlines services.'
-].join('\\n');
+].join('\n');
 const nowNano = BigInt(Date.now()) * 1000000n;
 const logParams = new URLSearchParams({
   query: '{service_name="ArticleService"} |= "HTTP"',
@@ -214,17 +214,17 @@ const logParams = new URLSearchParams({
 const loki = await api('/api/datasources/proxy/uid/loki/loki/api/v1/query_range?' + logParams);
 const logLines = (loki.data?.result || []).flatMap(s => (s.values || []).map(v => ({
   when: new Date(Number(BigInt(v[0]) / 1000000n)).toISOString().slice(11, 19),
-  text: String(v[1]).replace(/[\\r\\n]+/g, ' ').slice(0, 185)
+  text: String(v[1]).replace(/[\r\n]+/g, ' ').slice(0, 185)
 }))).sort((a,b) => b.when.localeCompare(a.when)).slice(0, 8);
 if (logLines.length === 0) throw new Error('Loki has no ArticleService HTTP logs');
 const logsMarkdown = [
   '## ArticleService HTTP request logs from Loki', '',
   '| Time (UTC) | Log message |',
   '|:--|:--|',
-  ...logLines.map(x => '| ' + x.when + ' | ' + x.text.replace(/\\|/g,'/') + ' |'),
+  ...logLines.map(x => '| ' + x.when + ' | ' + x.text.replace(/\|/g,'/') + ' |'),
   '',
   'These records were emitted by ArticleService and collected through OpenTelemetry.'
-].join('\\n');
+].join('\n');
 
 const tempoTrace = await api('/api/datasources/proxy/uid/tempo/api/traces/' + traceId);
 const traceJson = JSON.stringify(tempoTrace);
@@ -251,13 +251,13 @@ const tracesMarkdown = [
   '| Service | Recorded span |',
   '|:--|:--|',
   ...(traceRows.length ?
-      traceRows.map(s => '| ' + s.service + ' | ' + s.name.replace(/\\|/g, '/') + ' |') :
+      traceRows.map(s => '| ' + s.service + ' | ' + s.name.replace(/\|/g, '/') + ' |') :
       observedServices.map(s => '| ' + s + ' | Trace spans received |')),
   '',
   'PublisherService published an article to RabbitMQ.',
   'ArticleService stored the article and NewsletterService received the publication event.',
   'All three service names were verified in the same Tempo trace response.'
-].join('\\n');
+].join('\n');
 
 async function importSnapshot(uid, title, panelTitle, markdown) {
   return importDashboard({
