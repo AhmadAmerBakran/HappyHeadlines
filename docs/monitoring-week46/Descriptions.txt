@@ -1,0 +1,12 @@
+Metrics.jpg
+The Grafana dashboard shows actual HTTP request counts and response times from the running Happy Headlines services.
+
+Logs.jpg
+Loki shows HTTP request logs emitted by ArticleService through OpenTelemetry.
+
+Tracing.jpg
+Tempo shows a publishing trace linking PublisherService, ArticleService and NewsletterService through RabbitMQ.
+
+Trace ID: 42d9a36865c53104d4ad5f54c423e05b
+Captured from running service containers in a temporary GitHub Actions monitoring environment.
+The monitoring environment connects all article scopes to one temporary test database; it does not replace the full Docker Swarm deployment.
