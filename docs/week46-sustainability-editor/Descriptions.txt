@@ -1,0 +1,14 @@
+01 Network Package Size.png
+GAF tactic: Reduce Network Package Size. This is the article repository in VS Code.
+The headline query selects only the fields needed for the list and leaves out the article body.
+
+02 Lazy Fetch.png
+GAF tactic: Defer Fetching. This is the headlines page script.
+The page first loads a list of headlines. It requests the full article only when a title is selected.
+
+03 Reduce Logging.png
+GAF tactic: Reduce Logging. This is the shared HTTP request logging middleware.
+Successful health checks are skipped in the information logs, while failed requests are still recorded.
+
+The images are direct screenshots of the source files opened in a VS Code editor on GitHub Actions.
+They are not screenshots of performance measurements.
