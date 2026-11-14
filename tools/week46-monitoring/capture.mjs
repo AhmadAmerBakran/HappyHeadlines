@@ -171,7 +171,7 @@ const traceDashboard = {
     id: 1, title: 'Publishing across services', type: 'traces',
     gridPos: {x: 0, y: 0, w: 24, h: 19},
     datasource: {uid: 'tempo', type: 'tempo'},
-    targets: [{refId: 'A', queryType: 'traceId', query: traceId,
+    targets: [{refId: 'A', queryType: 'traceql', query: traceId,
       datasource: {uid: 'tempo', type: 'tempo'}}]
   }]
 };
