@@ -75,8 +75,8 @@ try {
   if (!available) throw new Error('VS Code editor did not become available');
   await page.goto(host + '/?folder=/home/coder/project', {waitUntil: 'domcontentloaded', timeout: 60000});
   await page.waitForTimeout(10000);
-  const trustButton = page.getByRole('button', {name: /yes, i trust the authors|trust/i});
-  if (await trustButton.count()) await trustButton.first().click();
+  const trustButton = page.locator('.monaco-dialog-box').getByRole('button', {name: 'Yes, I trust the authors'});
+  if (await trustButton.count()) await trustButton.click();
   await page.waitForTimeout(1700);
   for (const item of checks) {
     await openFile(item);
