@@ -288,9 +288,9 @@ try {
   if (await skip.count()) await skip.first().click();
 
   await screenshot(page, '/d/happy-headlines-overview?orgId=1&from=now-15m&to=now',
-    'Metrics', 'Requests per minute');
+    'Metrics', 'HTTP requests recorded by Prometheus');
   await screenshot(page, '/d/happy-headlines-monitoring-logs?orgId=1&from=now-15m&to=now',
-    'Logs', 'ArticleService HTTP requests');
+    'Logs', 'ArticleService HTTP request logs from Loki');
   await screenshot(page, '/d/happy-headlines-monitoring-trace?orgId=1&from=now-15m&to=now',
     'Tracing', 'PublisherService');
 
