@@ -193,8 +193,29 @@ try {
     'Metrics', 'Requests per minute');
   await screenshot(page, '/d/happy-headlines-monitoring-logs?orgId=1&from=now-15m&to=now',
     'Logs', 'ArticleService HTTP requests');
-  await screenshot(page, '/d/happy-headlines-monitoring-trace?orgId=1&from=now-15m&to=now',
-    'Tracing', 'PublisherService');
+  let traceCaptured = false;
+  for (const mode of ['traceId', 'traceql']) {
+    const panes = {
+      main: {
+        datasource: 'tempo',
+        queries: [{
+          refId: 'A', queryType: mode, query: traceId,
+          datasource: {type: 'tempo', uid: 'tempo'}
+        }],
+        range: {from: 'now-15m', to: 'now'}
+      }
+    };
+    const link = '/explore?panes=' + encodeURIComponent(JSON.stringify(panes)) +
+      '&schemaVersion=1&orgId=1';
+    try {
+      await screenshot(page, link, 'Tracing', 'PublisherService');
+      traceCaptured = true;
+      break;
+    } catch (error) {
+      console.log('Grafana Explore ' + mode + ' did not display the trace: ' + error.message);
+    }
+  }
+  if (!traceCaptured) throw new Error('Could not render the verified Tempo trace in Grafana Explore');
 
   const notes = [
     'Metrics.jpg',
