@@ -1,0 +1,10 @@
+01 Network Package Size.png
+GAF tactic: Reduce Network Package Size. We added a headlines query that returns only the fields needed for the article list. It leaves out the full article text, so smaller responses are sent to the reader.
+
+02 Lazy Fetch.png
+GAF tactic: Defer Fetching / Lazy Fetch. The page loads the headlines first. When a reader selects one, the WebApp requests the full article separately. Articles that are not opened do not have their content downloaded.
+
+03 Reduce Logging.png
+GAF tactic: Reduce Logging. Successful health checks no longer create an information log entry. Failed requests are still logged, and request metrics are still collected. This reduces unnecessary log traffic.
+
+The screenshots show selected source code, not measured electricity or CO2 savings.
