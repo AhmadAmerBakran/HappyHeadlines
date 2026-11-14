@@ -1,0 +1,113 @@
+services:
+  observability:
+    image: grafana/otel-lgtm:latest
+    ports:
+      - "3000:3000"
+    environment:
+      GF_AUTH_ANONYMOUS_ENABLED: "false"
+    restart: unless-stopped
+
+  article-db:
+    image: postgres:16-alpine
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: happyheadlines_dev
+      POSTGRES_DB: happy_headlines_global
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U postgres -d happy_headlines_global"]
+      interval: 3s
+      timeout: 3s
+      retries: 30
+
+  article-cache:
+    image: redis:7-alpine
+
+  article-queue:
+    image: rabbitmq:3.13-management-alpine
+    environment:
+      RABBITMQ_DEFAULT_USER: application
+      RABBITMQ_DEFAULT_PASS: happyheadlines_dev
+    healthcheck:
+      test: ["CMD", "rabbitmq-diagnostics", "-q", "ping"]
+      interval: 5s
+      timeout: 5s
+      retries: 30
+
+  article-service:
+    build:
+      context: ../..
+      dockerfile: src/ArticleService/Dockerfile
+    ports:
+      - "8080:8080"
+    environment:
+      ASPNETCORE_URLS: http://+:8080
+      OTEL_EXPORTER_OTLP_ENDPOINT: http://observability:4317
+      OTEL_METRIC_EXPORT_INTERVAL: "5000"
+      RabbitMq__HostName: article-queue
+      RabbitMq__UserName: application
+      RabbitMq__Password: happyheadlines_dev
+      ConnectionStrings__ArticleCache: article-cache:6379
+      ConnectionStrings__Africa: &testdb "Host=article-db;Port=5432;Database=happy_headlines_global;Username=postgres;Password=happyheadlines_dev"
+      ConnectionStrings__Antarctica: *testdb
+      ConnectionStrings__Asia: *testdb
+      ConnectionStrings__Australia: *testdb
+      ConnectionStrings__Europe: *testdb
+      ConnectionStrings__NorthAmerica: *testdb
+      ConnectionStrings__SouthAmerica: *testdb
+      ConnectionStrings__Global: *testdb
+    depends_on:
+      article-db:
+        condition: service_healthy
+      article-queue:
+        condition: service_healthy
+      article-cache:
+        condition: service_started
+      observability:
+        condition: service_started
+
+  publisher-service:
+    build:
+      context: ../..
+      dockerfile: src/PublisherService/Dockerfile
+    ports:
+      - "8083:8080"
+    environment:
+      ASPNETCORE_URLS: http://+:8080
+      OTEL_EXPORTER_OTLP_ENDPOINT: http://observability:4317
+      OTEL_METRIC_EXPORT_INTERVAL: "5000"
+      RabbitMq__HostName: article-queue
+      RabbitMq__UserName: application
+      RabbitMq__Password: happyheadlines_dev
+    depends_on:
+      article-queue:
+        condition: service_healthy
+      observability:
+        condition: service_started
+
+  newsletter-service:
+    build:
+      context: ../..
+      dockerfile: src/NewsletterService/Dockerfile
+    ports:
+      - "8084:8080"
+    environment:
+      ASPNETCORE_URLS: http://+:8080
+      OTEL_EXPORTER_OTLP_ENDPOINT: http://observability:4317
+      OTEL_METRIC_EXPORT_INTERVAL: "5000"
+      RabbitMq__HostName: article-queue
+      RabbitMq__UserName: application
+      RabbitMq__Password: happyheadlines_dev
+      SubscriberRabbitMq__HostName: subscriber-queue
+      SubscriberRabbitMq__UserName: application
+      SubscriberRabbitMq__Password: happyheadlines_dev
+    depends_on:
+      article-queue:
+        condition: service_healthy
+      observability:
+        condition: service_started
+
+  subscriber-queue:
+    image: rabbitmq:3.13-management-alpine
+    environment:
+      RABBITMQ_DEFAULT_USER: application
+      RABBITMQ_DEFAULT_PASS: happyheadlines_dev
