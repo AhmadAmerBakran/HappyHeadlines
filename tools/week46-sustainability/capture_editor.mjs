@@ -73,7 +73,7 @@ try {
     await new Promise(r => setTimeout(r, 1500));
   }
   if (!available) throw new Error('VS Code editor did not become available');
-  await page.goto(host + '/?folder=/home/coder/HappyHeadlines', {waitUntil: 'domcontentloaded', timeout: 60000});
+  await page.goto(host + '/?folder=/home/coder/project', {waitUntil: 'domcontentloaded', timeout: 60000});
   await page.waitForTimeout(10000);
   const trustButton = page.locator('.monaco-dialog-box').getByRole('button', {name: 'Yes, I trust the authors'});
   if (await trustButton.count()) await trustButton.click();
