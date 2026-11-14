@@ -44,9 +44,11 @@ after_logging = """if (statusCode >= 400
 def check(source, block, name):
     lines = [line.strip() for line in source.splitlines()]
     expected = [line.strip() for line in block.splitlines()]
-    found = any(lines[i:i + len(expected)] == expected
-                for i in range(len(lines) - len(expected) + 1))
-    if not found:
+    cursor = 0
+    for line in lines:
+        if cursor < len(expected) and line == expected[cursor]:
+            cursor += 1
+    if cursor != len(expected):
         raise ValueError("Source changed; cannot show " + name)
 
 for source, block, name in [
@@ -124,8 +126,8 @@ make(
     "Load article text when it is needed",
     "Defer Fetching / Lazy Fetch",
     [
-        (169, 236, "When the page opens", "WebApp/Program.cs / loadHeadlines", page_load.splitlines()),
-        (430, 354, "After a headline is selected", "WebApp/Program.cs / showArticle", [on_click, "", *fetch_body.splitlines()]),
+        (169, 236, "When the page opens", "WebApp/Program.cs / loadHeadlines (selected lines)", page_load.splitlines()),
+        (430, 354, "After a headline is selected", "WebApp/Program.cs / loadHeadlines and showArticle (selected lines)", [on_click, "", *fetch_body.splitlines()]),
     ],
     "Readers fetch full article text only after selecting a headline."
 )
