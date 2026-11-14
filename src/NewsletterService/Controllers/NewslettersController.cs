@@ -57,6 +57,11 @@ public sealed class NewslettersController(
 
         try
         {
+            if (!await subscriberClient.IsEnabledAsync(cancellationToken))
+            {
+                return NotFound(new { error = "Subscriber feature is disabled." });
+            }
+
             var emails = await subscriberClient.GetSubscribersAsync(cancellationToken);
             foreach (var email in emails)
             {
