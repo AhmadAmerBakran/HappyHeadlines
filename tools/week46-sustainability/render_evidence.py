@@ -42,7 +42,11 @@ after_logging = """if (statusCode >= 400
 }"""
 
 def check(source, block, name):
-    if block not in source:
+    lines = [line.strip() for line in source.splitlines()]
+    expected = [line.strip() for line in block.splitlines()]
+    found = any(lines[i:i + len(expected)] == expected
+                for i in range(len(lines) - len(expected) + 1))
+    if not found:
         raise ValueError("Source changed; cannot show " + name)
 
 for source, block, name in [
@@ -68,7 +72,7 @@ title_font = font("DejaVuSans-Bold.ttf", 37)
 small_font = font("DejaVuSans.ttf", 21)
 caption_font = font("DejaVuSans.ttf", 23)
 section_font = font("DejaVuSans-Bold.ttf", 23)
-code_font = font("DejaVuSansMono.ttf", 21)
+code_font = font("DejaVuSansMono.ttf", 18)
 dark = "#182637"
 muted = "#536578"
 green = "#206956"
@@ -78,13 +82,13 @@ def card(draw, y, height, label, source, lines):
     draw.rounded_rectangle((66, y, 1534, y + height), radius=18, fill="#FFFFFF", outline=border, width=2)
     draw.text((92, y + 24), label, font=section_font, fill=dark)
     draw.text((92, y + 62), source, font=small_font, fill=muted)
-    code_top = y + 105
-    draw.rounded_rectangle((92, code_top, 1508, y + height - 26), radius=10, fill="#F3F6F9")
-    yy = code_top + 15
+    code_top = y + 100
+    draw.rounded_rectangle((92, code_top, 1508, y + height - 9), radius=10, fill="#F3F6F9")
+    yy = code_top + 13
     for line in lines:
         draw.text((117, yy), line, font=code_font, fill=dark)
-        yy += 30
-    if yy > y + height - 9:
+        yy += 24
+    if yy - 24 + 21 > y + height - 4:
         raise ValueError("Code overflow in " + label)
 
 def make(filename, title, tactic, cards, footer):
@@ -131,8 +135,8 @@ make(
     "Skip successful health check logs",
     "Reduce Logging",
     [
-        (169, 293, "Previous request logging", "docs/week45-sustainability.md", before_logging.splitlines()),
-        (487, 325, "Current request logging", "ObservabilityExtensions.cs / UseHappyHeadlinesRequestLogging", after_logging.splitlines()),
+        (165, 273, "Previous request logging", "docs/week45-sustainability.md", before_logging.splitlines()),
+        (450, 363, "Current request logging", "ObservabilityExtensions.cs / UseHappyHeadlinesRequestLogging", after_logging.splitlines()),
     ],
     "Failed requests still log, and HTTP request metrics are kept."
 )
