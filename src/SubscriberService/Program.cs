@@ -26,6 +26,16 @@ app.MapGet("/api/subscribers/rollout", async (
     return Results.Ok(await repository.GetRolloutAsync(ct));
 });
 
+app.MapGet("/api/subscribers/rollout/status", async (
+    HttpRequest request, SubscriberRepository repository, IConfiguration configuration, CancellationToken ct) =>
+{
+    if (!HasKey(request, configuration["Subscriber:InternalKey"], "X-Subscriber-Internal-Key"))
+        return Results.Unauthorized();
+
+    var rollout = await repository.GetRolloutAsync(ct);
+    return Results.Ok(new { enabled = rollout.Enabled && rollout.Percentage > 0 });
+});
+
 app.MapPut("/api/subscribers/rollout", async (
     HttpRequest request, UpdateRolloutRequest update, SubscriberRepository repository,
     IConfiguration configuration, CancellationToken ct) =>
