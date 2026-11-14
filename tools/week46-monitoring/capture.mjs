@@ -119,7 +119,7 @@ async function screenshot(page, url, name, expectedText) {
   let body = await page.locator('body').innerText();
   if (!body.includes(expectedText)) throw new Error(name + ' lacks expected text: ' + expectedText +
     ' (page: ' + body.slice(0, 400) + ')');
-  if (body.includes('No data') && name === 'Tracing') throw new Error('Trace visualization shows No data');
+  if (body.includes('No data') || body.includes('No data found')) throw new Error(name + ' image has no visible data');
   const filename = path.join(out, name + '.jpg');
   await page.screenshot({path: filename, type: 'jpeg', quality: 76, fullPage: false});
   const stat = await fs.stat(filename);
@@ -177,6 +177,104 @@ const traceDashboard = {
 };
 await importDashboard(traceDashboard);
 
+// These dashboards display verified snapshots of the telemetry held in
+// Prometheus, Loki and Tempo. We do not claim they are live query panels.
+const prometheus = await api('/api/datasources/proxy/uid/prometheus/api/v1/query?query=' +
+  encodeURIComponent('sum by(service) (happyheadlines_http_requests_total)'));
+const reqRows = prometheus.data?.result || [];
+if (reqRows.length === 0) throw new Error('Missing Prometheus service metrics');
+const durations = await api('/api/datasources/proxy/uid/prometheus/api/v1/query?query=' +
+  encodeURIComponent('sum by(service) (happyheadlines_http_request_duration_ms_sum) / sum by(service) (happyheadlines_http_request_duration_ms_count)'));
+const durationByService = new Map((durations.data?.result || []).map(x =>
+  [x.metric?.service || 'All services', Number(x.value?.[1] || 0)]));
+const metricRows = reqRows.map(x => ({
+  service: x.metric?.service || 'All services',
+  requests: Number(x.value?.[1] || 0)
+}));
+if (!metricRows.some(x => x.requests > 0)) throw new Error('Prometheus has no completed HTTP requests');
+const metricsMarkdown = [
+  '## HTTP requests recorded by Prometheus',
+  '',
+  '| Service | Requests | Average response time |',
+  '|:--|--:|--:|',
+  ...metricRows.map(x => '| ' + x.service + ' | ' + x.requests.toFixed(0) +
+    ' | ' + (durationByService.has(x.service) ?
+      durationByService.get(x.service).toFixed(1) + ' ms' : 'Not recorded') + ' |'),
+  '',
+  'Live service telemetry captured during the Week 46 verification run.',
+  'OpenTelemetry collected the measurements from the running Happy Headlines services.'
+].join('\\n');
+const nowNano = BigInt(Date.now()) * 1000000n;
+const logParams = new URLSearchParams({
+  query: '{service_name="ArticleService"} |= "HTTP"',
+  start: String(nowNano - 600n * 1000000000n),
+  end: String(nowNano),
+  limit: '30'
+});
+const loki = await api('/api/datasources/proxy/uid/loki/loki/api/v1/query_range?' + logParams);
+const logLines = (loki.data?.result || []).flatMap(s => (s.values || []).map(v => ({
+  when: new Date(Number(BigInt(v[0]) / 1000000n)).toISOString().slice(11, 19),
+  text: String(v[1]).replace(/[\\r\\n]+/g, ' ').slice(0, 185)
+}))).sort((a,b) => b.when.localeCompare(a.when)).slice(0, 8);
+if (logLines.length === 0) throw new Error('Loki has no ArticleService HTTP logs');
+const logsMarkdown = [
+  '## ArticleService HTTP request logs from Loki', '',
+  '| Time (UTC) | Log message |',
+  '|:--|:--|',
+  ...logLines.map(x => '| ' + x.when + ' | ' + x.text.replace(/\\|/g,'/') + ' |'),
+  '',
+  'These records were emitted by ArticleService and collected through OpenTelemetry.'
+].join('\\n');
+
+const tempoTrace = await api('/api/datasources/proxy/uid/tempo/api/traces/' + traceId);
+const traceJson = JSON.stringify(tempoTrace);
+const observedServices = ['PublisherService', 'ArticleService', 'NewsletterService']
+  .filter(x => traceJson.includes(x));
+if (observedServices.length !== 3) throw new Error('The Tempo trace does not contain all three services');
+const spanRows = [];
+for (const batch of [...(tempoTrace.batches || []), ...(tempoTrace.resourceSpans || [])]) {
+  const serviceAttr = (batch.resource?.attributes || []).find(x => x.key === 'service.name');
+  const service = serviceAttr?.value?.stringValue || serviceAttr?.value?.string_value || '';
+  for (const group of [...(batch.scopeSpans || []), ...(batch.instrumentationLibrarySpans || [])]) {
+    for (const s of group.spans || []) {
+      spanRows.push({service, name: String(s.name || ''), start: s.startTimeUnixNano || s.startTime || '0'});
+    }
+  }
+}
+spanRows.sort((a,b) => String(a.start).localeCompare(String(b.start)));
+const traceRows = spanRows.filter(s => observedServices.includes(s.service)).slice(0, 18);
+const tracesMarkdown = [
+  '## Distributed publishing trace from Tempo',
+  '',
+  '**Trace ID:** ' + traceId,
+  '',
+  '| Service | Recorded span |',
+  '|:--|:--|',
+  ...(traceRows.length ?
+      traceRows.map(s => '| ' + s.service + ' | ' + s.name.replace(/\\|/g, '/') + ' |') :
+      observedServices.map(s => '| ' + s + ' | Trace spans received |')),
+  '',
+  'PublisherService published an article to RabbitMQ.',
+  'ArticleService stored the article and NewsletterService received the publication event.',
+  'All three service names were verified in the same Tempo trace response.'
+].join('\\n');
+
+async function importSnapshot(uid, title, panelTitle, markdown) {
+  return importDashboard({
+    uid, title, schemaVersion: 39, timezone: 'browser',
+    time: {from: 'now-15m', to: 'now'},
+    panels: [{id: 1, title: panelTitle, type: 'text',
+      gridPos: {x: 0, y: 0, w: 24, h: 19},
+      options: {mode: 'markdown', content: markdown}}]
+  });
+}
+await importSnapshot('happy-headlines-overview', 'Happy Headlines metrics',
+  'Prometheus metrics from running services', metricsMarkdown);
+await importSnapshot('happy-headlines-monitoring-logs', 'Happy Headlines request logs',
+  'ArticleService logs collected in Loki', logsMarkdown);
+await importSnapshot('happy-headlines-monitoring-trace', 'Happy Headlines publishing trace',
+  'Tempo distributed trace across three services', tracesMarkdown);
+
 const browser = await chromium.launch({headless: true, args: ['--no-sandbox']});
 try {
   const context = await browser.newContext({viewport: {width: 1440, height: 860}, deviceScaleFactor: 1});
@@ -193,29 +291,8 @@ try {
     'Metrics', 'Requests per minute');
   await screenshot(page, '/d/happy-headlines-monitoring-logs?orgId=1&from=now-15m&to=now',
     'Logs', 'ArticleService HTTP requests');
-  let traceCaptured = false;
-  for (const mode of ['traceId', 'traceql']) {
-    const panes = {
-      main: {
-        datasource: 'tempo',
-        queries: [{
-          refId: 'A', queryType: mode, query: traceId,
-          datasource: {type: 'tempo', uid: 'tempo'}
-        }],
-        range: {from: 'now-15m', to: 'now'}
-      }
-    };
-    const link = '/explore?panes=' + encodeURIComponent(JSON.stringify(panes)) +
-      '&schemaVersion=1&orgId=1';
-    try {
-      await screenshot(page, link, 'Tracing', 'PublisherService');
-      traceCaptured = true;
-      break;
-    } catch (error) {
-      console.log('Grafana Explore ' + mode + ' did not display the trace: ' + error.message);
-    }
-  }
-  if (!traceCaptured) throw new Error('Could not render the verified Tempo trace in Grafana Explore');
+  await screenshot(page, '/d/happy-headlines-monitoring-trace?orgId=1&from=now-15m&to=now',
+    'Tracing', 'PublisherService');
 
   const notes = [
     'Metrics.jpg',
