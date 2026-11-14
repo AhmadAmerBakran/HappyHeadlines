@@ -23,9 +23,9 @@ jobs:
         run: |
           docker run -d --name week46-vscode \
             -p 127.0.0.1:8443:8080 \
-            -v "$GITHUB_WORKSPACE:/home/coder/project" \
+            -v "$GITHUB_WORKSPACE:/home/coder/HappyHeadlines" \
             codercom/code-server:4.100.1 \
-            --auth none --bind-addr 0.0.0.0:8080 /home/coder/project
+            --auth none --bind-addr 0.0.0.0:8080 /home/coder/HappyHeadlines
 
       - name: Set up screenshot browser
         run: |
@@ -39,13 +39,15 @@ jobs:
         run: |
           python3 - <<'PY'
           from pathlib import Path
-          from PIL import Image
+          import struct
           folder = Path('docs/week46-sustainability-editor')
           screenshots = sorted(folder.glob('*.png'))
           assert len(screenshots) == 3, [str(p) for p in screenshots]
           for screenshot in screenshots:
-              with Image.open(screenshot) as image:
-                  image.verify()
+              data = screenshot.read_bytes()
+              assert data[:8] == bytes.fromhex("89504e470d0a1a0a"), screenshot
+              width, height = struct.unpack(">II", data[16:24])
+              assert (width, height) == (1600, 900), screenshot
               assert screenshot.stat().st_size < 1000000, screenshot
               print(screenshot, screenshot.stat().st_size)
           PY
